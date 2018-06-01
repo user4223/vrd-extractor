@@ -9,7 +9,10 @@
 
 #include <memory>
 
-namespace Exiv2 { class XmpData; } ///< Just to avoid including exiv2 in header
+namespace Exiv2 
+{ 
+   class XmpData; ///< Just to avoid including exiv2 in header
+}
 
 namespace VRD
 {

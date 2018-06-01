@@ -14,7 +14,7 @@
 namespace VRD
 {
 namespace Canon
-{ 
+{
    struct CDR4Header
    {
       static const uint32_t size = 36;

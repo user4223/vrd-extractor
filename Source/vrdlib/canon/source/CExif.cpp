@@ -1,10 +1,9 @@
 
 #include "../include/DescriptorTypes.h"
 #include "../include/CExif.h"
+#include "../include/PropertyTypes.h"
 
 #include "vrdlib/common/include/CContext.h"
-
-#include "vrdlib/canon/include/PropertyTypes.h"
 
 #include "vrdlib/utility/include/CStreamReader.h"
 

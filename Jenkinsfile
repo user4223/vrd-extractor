@@ -79,6 +79,23 @@ node {
       }
       
       catchAndFail {
+         stage('Doxygen') {
+            if (checkForSkip()) { return }
+            
+            sh 'doxygen'
+
+            publishHTML (target: [
+               allowMissing: false,
+               alwaysLinkToLastBuild: false,
+               keepAll: true,
+               reportDir: 'documentation/html',
+               reportFiles: 'index.html',
+               reportName: "Doxygen Report"
+            ])
+         }
+      }
+
+      catchAndFail {
          stage('Deploy') {
             if (checkForSkip()) { return }
             // do
