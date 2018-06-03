@@ -3,17 +3,15 @@
 #include "../include/CXMPWriter.h" ///< \todo remove
 #include "../include/CPropertySourceFactory.h"
 
-#include "vrdlib/api/include/PropertyTypes.h"
-#include "vrdlib/api/include/IConflictHandler.h" 
+#include "vrdlib/api/include/PropertyTypes.h" 
 
 #include "vrdlib/utility/include/FileUtility.h"
-#include "vrdlib/utility/include/CConflictHandler.h"
 
 #include <iostream>
 
 namespace VRD
 {   
-   CExtractor::CExtractor(boost::filesystem::path const& root, std::string whiteListRegex, bool dryMode) 
+   CExtractor::CExtractor(boost::filesystem::path const& root, std::string whiteListRegex, std::unique_ptr<VRD::API::IConflictHandler> conflictHandler, bool dryMode) 
       :m_logger(log4cxx::Logger::getLogger("VRD.CExtractor"))
       ,m_root(root)
    {
@@ -23,8 +21,7 @@ namespace VRD
       LOG4CXX_INFO(m_logger, "Number of files matching pattern '" << whiteListRegex << "': " << files.size());
       
       size_t updatedFiles = 0;
-      Utility::CManualConflictHandler conflictHandler(std::cin, std::cout);
-      Common::CPropertySourceFactory propertySourceFactory(conflictHandler);
+      Common::CPropertySourceFactory propertySourceFactory(*conflictHandler);
       for (auto const& inFile : files) 
       { 
          auto outFile(inFile);
@@ -35,7 +32,7 @@ namespace VRD
          
          /** \todo Add factory for sinks and remove concrete instances here.
           */
-         CXMPWriter writer(outFile, dryMode ? CXMPWriter::Mode::Dry : CXMPWriter::Mode::Normal, conflictHandler);
+         CXMPWriter writer(outFile, dryMode ? CXMPWriter::Mode::Dry : CXMPWriter::Mode::Normal, *conflictHandler);
          auto const changedProperties(propertySourceFactory.create(inFile)->foreachProperty([&](API::CProperty const& property)
          {  writer.setProperty(property); }));
          

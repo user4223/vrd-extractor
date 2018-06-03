@@ -34,19 +34,38 @@ namespace Canon
          map[validValues.at(inValue)].push_back(*property);
       }
       
-      std::vector<std::string> createOptionsList(auto const& map)
+      struct Options
       {
-         std::vector<std::string> options;
-         for (auto const& entry : map)
+         Options(std::map<int16_t, std::vector<API::CProperty>> const& valueMap) : m_valueMap(valueMap), m_optionValueMap() {}
+         
+         std::vector<std::string> createList()
          {
-            std::ostringstream os;
-            std::vector<std::string> propertyStrings(entry.second.size());
-            std::transform(entry.second.begin(), entry.second.end(), propertyStrings.begin(), [](auto const& p){ return to_string(p); });
-            os << API::PropertyType::Rating << ": " << entry.first << " [" << boost::algorithm::join(propertyStrings, ", ") << "]";
-            options.emplace_back(os.str());
+            size_t index(0);
+            std::vector<std::string> options;
+            for (auto const& entry : m_valueMap)
+            {
+               std::ostringstream os;
+               std::vector<std::string> propertyStrings(entry.second.size());
+               std::transform(entry.second.begin(), entry.second.end(), propertyStrings.begin(), [](auto const& p){ return to_string(p); });
+               os << API::PropertyType::Rating << ": " << entry.first << " [" << boost::algorithm::join(propertyStrings, ", ") << "]";
+               options.emplace_back(os.str());
+               m_optionValueMap.emplace(std::make_pair(index++, entry.first));
+            }
+            return options;
          }
-         return options;
-      }
+         
+         auto resolveValue(unsigned int selection) const
+         {  
+            auto const it(m_optionValueMap.find(selection));
+            if (it == m_optionValueMap.end()) 
+            { throw std::domain_error("Selection could not be found in option list: " + std::to_string(selection)); }
+            return it->second; 
+         }
+         
+      private:
+         std::map<int16_t, std::vector<API::CProperty>> const& m_valueMap;
+         std::map<size_t, int16_t> m_optionValueMap;
+      };
       
       auto const convert([](API::IPropertySource const& query, API::IConflictHandler& conflictHandler)
       {
@@ -68,19 +87,9 @@ namespace Canon
       
          /** We have multiple values, so we ask the conflict handler to solve it
           */
-         auto const options(createOptionsList(valueMap));
-         auto const selectedValue(conflictHandler.handle(options).selection.value());
-         
-         /** Selected value is one of the provided options
-          */
-         auto const selectedEntry(valueMap.find(selectedValue));
-         if (selectedEntry != valueMap.end())
-         {  return CPropertyAdapter::OptionalPropertyType(API::CProperty(to_string(API::PropertyType::Rating), selectedEntry->first)); }
-         
-         /** \todo This cannot happen */         
-         std::ostringstream os;
-         os << "Unresolved conflict, selected value does not exist in option list: " << selectedValue;
-         throw std::domain_error(os.str());
+         Options options(valueMap);
+         auto const selectedValue(options.resolveValue(conflictHandler.handle(options.createList()).selection.value()));         
+         return CPropertyAdapter::OptionalPropertyType(API::CProperty(to_string(API::PropertyType::Rating), selectedValue));
       });
    }
    

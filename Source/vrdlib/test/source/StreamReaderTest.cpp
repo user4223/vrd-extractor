@@ -25,6 +25,11 @@ TEST_F(StreamReaderTest, OpenDirectory)
    EXPECT_THROW(VRD::Utility::CStreamReader(getDirectoryPath(), VRD::Utility::ByteOrder::LittleEndian), std::invalid_argument);
 }
 
+TEST_F(StreamReaderTest, NotExistingFile)
+{
+   EXPECT_THROW(VRD::Utility::CStreamReader(getDirectoryPath() / "blub", VRD::Utility::ByteOrder::LittleEndian), std::invalid_argument);
+}
+
 TEST_F(StreamReaderTest, Empty)
 {
    VRD::Utility::CStreamReader reader(getFilePath(), VRD::Utility::ByteOrder::LittleEndian);

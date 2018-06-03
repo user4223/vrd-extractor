@@ -1,6 +1,8 @@
 
 #include "../include/CSampleDirectoryAwareTestBase.h"
 
+#include "vrdlib/api/include/PropertyTypes.h"
+
 #include "vrdlib/common/include/CContext.h"
 
 #include "vrdlib/canon/include/PropertyTypes.h"
@@ -8,9 +10,11 @@
 #include "vrdlib/canon/include/CCRW.h"
 #include "vrdlib/canon/include/CVRD.h"
 #include "vrdlib/canon/include/CDR4.h"
+#include "vrdlib/canon/include/CPropertyAdapter.h"
 
 #include "vrdlib/utility/include/FileUtility.h"
 #include "vrdlib/utility/include/CStreamReader.h"
+#include "vrdlib/utility/include/CConflictHandler.h"
 
 #include <boost/filesystem.hpp>
 
@@ -24,6 +28,8 @@
  *  \todo Add tests for DR4 rating
  */
 
+void printWarning() { std::cout << "\nWarning: No matching files found\n\n" << std::flush; }
+
 struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
 {
    CanonIntegrationTest() : CSampleAwareTestBase() {}
@@ -34,7 +40,7 @@ struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
       auto const files(VRD::Utility::getNonEmptyMatches(getSampleDirectory(), std::regex(fileRegex)));
       if (files.empty())
       {  
-         std::cout << "\nWarning: No matching files found\n\n" << std::flush; 
+         printWarning();
          return 0;
       }
       unsigned int index(0);
@@ -49,6 +55,25 @@ struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
 };
 
 auto const optionalCheckForce(false); ///< Turn to true for local checks agains real images
+
+TEST_F(CanonIntegrationTest, CR2_DPP3_CheckMark_Rating_Conflict)
+{
+   auto const image(getSampleDirectory() / "CR2" / "DPP_V3" / "V3_CM2_Rating2.CR2");
+   if (!optionalCheckForce && !boost::filesystem::exists(image))
+   {
+      printWarning();
+      return;
+   }
+   auto context(std::make_unique<VRD::CContext>(std::make_unique<VRD::Utility::CStreamReader>(image)));
+   VRD::Canon::CCR2().interpret(*context);
+   std::stringstream stream;
+   stream << "abc\n-1\n1\n23\n0\nx\n";
+   VRD::Utility::CManualConflictHandler conflictHandler(stream, std::cout);
+   VRD::Canon::CPropertyAdapter adapter(std::move(context), conflictHandler);
+   EXPECT_EQ(4, boost::get<int16_t>(adapter.getProperty(to_string(VRD::API::PropertyType::Rating)).value().value));
+   EXPECT_EQ(2, boost::get<int16_t>(adapter.getProperty(to_string(VRD::API::PropertyType::Rating)).value().value));
+   EXPECT_THROW(adapter.getProperty(to_string(VRD::API::PropertyType::Rating)), std::domain_error);
+}
 
 TEST_F(CanonIntegrationTest, CR2_DPP_V3_CheckMark)
 {

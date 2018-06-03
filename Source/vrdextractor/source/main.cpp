@@ -2,6 +2,7 @@
 #include "vrdlib/common/include/CExtractor.h"
 
 #include "vrdlib/utility/include/LoggerUtility.h"
+#include "vrdlib/utility/include/CConflictHandler.h"
 
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
@@ -54,6 +55,7 @@ int main(int argc, char** argv)
       VRD::CExtractor(
           vm["root"].as<bfs::path>()
          ,vm["white-list-regex"].as<std::string>()
+         ,std::make_unique<VRD::Utility::CManualConflictHandler>(std::cin, std::cout)
          ,vm["dry"].as<bool>());
       return 0;
    }

@@ -47,8 +47,12 @@ namespace Utility
       :m_path(path)
       ,m_raw([&]
       {
+         if (!boost::filesystem::exists(path))
+         {  throw std::invalid_argument(std::string("Path to read from does not exist: ") + path.string()); }
+         
          if (boost::filesystem::is_directory(path))
-         {  throw std::invalid_argument(std::string("Path to read from is a directory path: ") + path.string()); }
+         {  throw std::invalid_argument(std::string("Path to read from is a directory: ") + path.string()); }
+
          return std::make_unique<std::ifstream>(path.string(), std::ios::binary);
       }())
       ,m_streamOrder(byteOrder)
