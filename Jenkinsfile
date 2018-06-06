@@ -62,7 +62,7 @@ node {
             if (params.buildConfiguration.equalsIgnoreCase('Coverage')) {
                sh """
                   cd build
-                  gcovr -x -b -r ../ -e \".+(gmock|gtest).*[.](cpp|h)\$\" -e \".+(Test|TestBase|Mock|main)[.](cpp|h)\$\" > vrdlib.test.coverage.xml
+                  gcovr -x -r ../ -e \".+(gmock|gtest).*[.](cpp|h)\$\" -e \".+(Test|TestBase|Mock|main)[.](cpp|h)\$\" > vrdlib.test.coverage.xml
                   """
                
                archiveArtifacts artifacts: 'build/vrdlib.test.coverage.xml', flattenDirectories: true
