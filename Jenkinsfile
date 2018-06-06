@@ -46,7 +46,11 @@ node {
       catchAndFail {
          stage('Test') {
             if (checkForSkip()) { return }
+
+            step ([$class: 'CopyArtifact', projectName: 'vrdextractor.images', filter: '*.tar']);
+
             sh """
+               tar xvf vrdlib.test.images.tar --directory Source/vrdlib/test/
                cd bin
                ./vrdlib.test --gtest_output=xml:vrdlib.test.result.xml
             """
