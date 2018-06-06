@@ -28,7 +28,7 @@
  *  \todo Add tests for DR4 rating
  */
 
-void printWarning() { std::cout << "\nWarning: No matching files found\n\n" << std::flush; }
+void printWarning(auto const& path) { std::cout << "\nWarning: Skipping test! No matching files found in: " << path << "\n\n" << std::flush; }
 
 struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
 {
@@ -40,7 +40,7 @@ struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
       auto const files(VRD::Utility::getNonEmptyMatches(getSampleDirectory(), std::regex(fileRegex)));
       if (files.empty())
       {  
-         printWarning();
+         printWarning(getSampleDirectory());
          return 0;
       }
       unsigned int index(0);
@@ -61,7 +61,7 @@ TEST_F(CanonIntegrationTest, CR2_DPP3_CheckMark_Rating_Conflict)
    auto const image(getSampleDirectory() / "CR2" / "DPP_V3" / "V3_CM2_Rating2.CR2");
    if (!optionalCheckForce && !boost::filesystem::exists(image))
    {
-      printWarning();
+      printWarning(getSampleDirectory() / "CR2" / "DPP_V3");
       return;
    }
    auto context(std::make_unique<VRD::CContext>(std::make_unique<VRD::Utility::CStreamReader>(image)));

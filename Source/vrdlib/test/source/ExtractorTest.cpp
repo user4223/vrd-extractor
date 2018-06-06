@@ -16,7 +16,7 @@ struct ExtractorTest : public VRD::Test::CSampleAwareTestBase {};
 
 TEST_F(ExtractorTest, Instantiation)
 {
-   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+   auto conflictHandler(std::make_unique<NiceMock<VRD::Test::CConflictHandlerMock>>());
    ON_CALL(*conflictHandler, handle(_)).WillByDefault(Return(0));
    
    EXPECT_NO_THROW(VRD::CExtractor(
