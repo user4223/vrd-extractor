@@ -1,22 +1,23 @@
 # Summary
 Tool to extract VRD recipe data out of CR2/CRW/VRD/DR4 files created while 
-using DPP. The extracted information is written into XMP sidecar files to be used
+using DPP. The extracted information is written or merged into XMP sidecar files to be used
 by Darktable. Currently supported tags:
 
 * Rating - Is merged togehter from 'Check Mark' and 'Star Rating' 
   information from VRD/DR version 1/2/4 or Exif/XMP data.
-  When conflicts between different sources or destination occur, 
-  the user is able to solve the it manually.
   Remember: 'Check Mark' in DPP is the internally used rating, while
   'Star Rating' is there for compatibility with other software, 
   Photographers might have used both independently or mixed over time.
+
+When conflicts between different sources or destination occur, 
+the user is able to solve the it manually.
 
 # Motivation
 First of all: Actually I like the results when using DPP to process my images and I
 have used DPP for years (10+) to do so because it is simple and straight forward, BUT:
 
-* It is using properitary formats for recipes
-* It is build from properitary source code
+* DPP is using proprietary formats for recipes
+* It is build from proprietary source code
 * It is not running on Linux natively
 
 I discovered Darktable recently as a very good replacement running 
