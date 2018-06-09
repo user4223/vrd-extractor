@@ -191,7 +191,7 @@ TEST_F(StreamReaderTest, Output)
    EXPECT_EQ(std::string("Position: ") + to_string(VRD::Utility::Absolute(23)), os.str());
 }
 
-TEST(ByteOrder, Output)
+TEST(ByteOrderTest, Output)
 {
    {
       std::ostringstream os;

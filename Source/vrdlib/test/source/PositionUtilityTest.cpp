@@ -3,54 +3,54 @@
 
 #include <gtest/gtest.h>
 
-TEST(Absolute, AddPositive)
+TEST(AbsoluteTest, AddPositive)
 {
    EXPECT_EQ(std::streampos(23), VRD::Utility::Absolute(5) + VRD::Utility::Relative(18));
 }
 
-TEST(Absolute, AddNegative)
+TEST(AbsoluteTest, AddNegative)
 {
    EXPECT_EQ(std::streampos(5), VRD::Utility::Absolute(23) + VRD::Utility::Relative(-18));
 }
 
-TEST(Absolute, GoingNegative)
+TEST(AbsoluteTest, GoingNegative)
 {
    EXPECT_THROW(VRD::Utility::Absolute(5) + VRD::Utility::Relative(-7), std::range_error);
 }
 
-TEST(Absolute, CreateNegative)
+TEST(AbsoluteTest, CreateNegative)
 {
    EXPECT_NO_THROW(VRD::Utility::Absolute(-5)); ///< To move from end
 }
 
-TEST(Absolute, CreatePositive)
+TEST(AbsoluteTest, CreatePositive)
 {
    EXPECT_NO_THROW(VRD::Utility::Absolute(23)); ///< To move from begin
 }
 
-TEST(Absolute, Equal)
+TEST(AbsoluteTest, Equal)
 {
    EXPECT_EQ(VRD::Utility::Absolute(23), VRD::Utility::Absolute(23));
 }
 
-TEST(Absolute, NotEqual)
+TEST(AbsoluteTest, NotEqual)
 {
    EXPECT_NE(VRD::Utility::Absolute(23), VRD::Utility::Absolute(5));
 }
 
-TEST(Absolute, GreaterThan)
+TEST(AbsoluteTest, GreaterThan)
 {
    EXPECT_TRUE(VRD::Utility::Absolute(4) < VRD::Utility::Absolute(5));
    EXPECT_FALSE(VRD::Utility::Absolute(6) < VRD::Utility::Absolute(5));
 }
 
-TEST(Absolute, LessThan)
+TEST(AbsoluteTest, LessThan)
 {
    EXPECT_TRUE(VRD::Utility::Absolute(6) > VRD::Utility::Absolute(5));
    EXPECT_FALSE(VRD::Utility::Absolute(4) > VRD::Utility::Absolute(5));
 }
 
-TEST(Absolute, ToString)
+TEST(AbsoluteTest, ToString)
 {
    EXPECT_EQ("0x00000004 (00000004)", to_string(VRD::Utility::Absolute(4)));
    std::ostringstream os;

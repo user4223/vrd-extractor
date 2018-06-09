@@ -12,7 +12,7 @@ std::stringstream makeInput(std::vector<int> values)
    return s;
 }
 
-TEST(CManualConflictHandler, SelectInRange)
+TEST(ManualConflictHandlerTest, SelectInRange)
 {
    auto stream(makeInput({1,0,2}));
    std::vector<std::string> options({"OptionA","OptionB","OptionC"});
@@ -23,7 +23,7 @@ TEST(CManualConflictHandler, SelectInRange)
    EXPECT_EQ(API::IConflictHandler::Result(2), h.handle(options));
 }
 
-TEST(CManualConflictHandler, EmptyOptionList)
+TEST(ManualConflictHandlerTest, EmptyOptionList)
 {
    auto stream(makeInput({1}));
    std::vector<std::string> options;
@@ -32,7 +32,7 @@ TEST(CManualConflictHandler, EmptyOptionList)
    EXPECT_THROW(h.handle(options), std::invalid_argument);
 }
 
-TEST(CManualConflictHandler, SelectAboveRange)
+TEST(ManualConflictHandlerTest, SelectAboveRange)
 {
    auto stream(makeInput({2,0}));   
    std::vector<std::string> options({"OptionA","OptionB"});
@@ -41,7 +41,7 @@ TEST(CManualConflictHandler, SelectAboveRange)
    EXPECT_EQ(API::IConflictHandler::Result(0), h.handle(options));
 }
 
-TEST(CManualConflictHandler, SelectBelowRange)
+TEST(ManualConflictHandlerTest, SelectBelowRange)
 {
    auto stream(makeInput({-1,1}));
    std::vector<std::string> options({"OptionA","OptionB"});
@@ -50,7 +50,7 @@ TEST(CManualConflictHandler, SelectBelowRange)
    EXPECT_EQ(API::IConflictHandler::Result(1), h.handle(options));
 }
 
-TEST(CManualConflictHandler, InvalidSelection)
+TEST(ManualConflictHandlerTest, InvalidSelection)
 {
    std::stringstream s;
    s << "blub";
@@ -61,7 +61,7 @@ TEST(CManualConflictHandler, InvalidSelection)
    EXPECT_THROW(h.handle(options), std::domain_error);
 }
 
-TEST(CManualConflictHandler, Terminate)
+TEST(ManualConflictHandlerTest, Terminate)
 {
    std::stringstream s;
    s << "-2\nX";
@@ -72,7 +72,7 @@ TEST(CManualConflictHandler, Terminate)
    EXPECT_THROW(h.handle(options), std::domain_error);
 }
 
-TEST(CManualConflictHandler, EmptyInput)
+TEST(ManualConflictHandlerTest, EmptyInput)
 {
    std::stringstream s;
    s << "\n\n\n"; ///< 3 tries, then EOF
@@ -82,3 +82,4 @@ TEST(CManualConflictHandler, EmptyInput)
    VRD::Utility::CManualConflictHandler h(s, std::cout);
    EXPECT_THROW(h.handle(options), std::domain_error);
 }
+
