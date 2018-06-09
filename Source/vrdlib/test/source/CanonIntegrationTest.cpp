@@ -54,7 +54,7 @@ struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
    }
 };
 
-auto const optionalCheckForce(false); ///< Turn to true for local checks agains real images
+auto const optionalCheckForce(true); ///< Turn to true for local checks agains real images
 
 TEST_F(CanonIntegrationTest, CR2_DPP3_CheckMark_Rating_Conflict)
 {
