@@ -33,7 +33,7 @@ int main(int argc, char** argv)
          ,bpo::value<bfs::path>()->default_value(bfs::current_path() / "vrdextractor.log")
          ,"Path to log-file")
       ("logger-config-file"
-         ,bpo::value<bfs::path>()->default_value(executablePath / "etc" / "loggerConfig.xml")
+         ,bpo::value<bfs::path>()
          ,"Path to logger configuration file")
       ;
    
@@ -49,8 +49,36 @@ int main(int argc, char** argv)
          return 0;
       }
       
+      bfs::path loggerConfig;
+      if (vm.count("logger-config-file"))
+      {
+         loggerConfig = vm["logger-config-file"].as<bfs::path>();
+         if (!bfs::exists(loggerConfig) || bfs::is_directory(loggerConfig))
+         {  
+            std::cerr << "Error: Argument 'logger-config-file' is not pointing to an existing normal file: " << loggerConfig; 
+            return -1;
+         }          
+      }
+      else
+      {         
+         std::vector<boost::filesystem::path> const defaultLoggerConfigLocations(
+         {
+             executablePath / "etc" / "loggerConfig.xml"
+            ,bfs::path("/usr") / "share" / "vrdextractor" / "loggerConfig.xml"
+         });
+         
+         for (auto const& path : defaultLoggerConfigLocations)
+         {
+            if (bfs::exists(path) && !bfs::is_directory(path))
+            {
+               loggerConfig = path;
+               break;
+            }
+         }
+      }
+      
       VRD::Utility::initializeLogger(
-          vm["logger-config-file"].as<bfs::path>()
+          loggerConfig
          ,vm["log-file"].as<bfs::path>());
       VRD::CExtractor(
           vm["root"].as<bfs::path>()

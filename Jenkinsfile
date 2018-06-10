@@ -102,7 +102,16 @@ node {
       catchAndFail {
          stage('Deploy') {
             if (checkForSkip()) { return }
-            // do
+            
+            sh """
+               cd build
+               cpack
+               printf "\n\n\n"
+               dpkg --contents vrdextractor-0.1.0.deb
+               printf "\n\n\n"
+               """
+            
+            archiveArtifacts artifacts: 'build/*.deb', flattenDirectories: true
          }
       }
    }
