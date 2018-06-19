@@ -47,7 +47,7 @@ namespace Canon
                std::ostringstream os;
                std::vector<std::string> propertyStrings(entry.second.size());
                std::transform(entry.second.begin(), entry.second.end(), propertyStrings.begin(), [](auto const& p){ return to_string(p); });
-               os << API::PropertyType::Rating << ": " << entry.first << " [" << boost::algorithm::join(propertyStrings, ", ") << "]";
+               os << API::PropertyType::Rating << ": " << entry.first << " [" << boost::algorithm::join(propertyStrings, "], [") << "]";
                options.emplace_back(os.str());
                m_optionValueMap.emplace(std::make_pair(index++, entry.first));
             }
@@ -100,24 +100,25 @@ namespace Canon
       return m;
    }());   
    
-   CPropertyAdapter::CPropertyAdapter(std::unique_ptr<IPropertySource> source, API::IConflictHandler& conflictHandler) 
+   CPropertyAdapter::CPropertyAdapter(std::unique_ptr<IPropertySource> source, std::unique_ptr<API::IConflictHandler> conflictHandler) 
       :m_source(std::move(source))
-      ,m_conflictHandler(conflictHandler)
+      ,m_conflictHandler(std::move(conflictHandler))
    {}
    
    CPropertyAdapter::OptionalPropertyType CPropertyAdapter::getProperty(std::string name) const
-   {  return propertyMap.at(name)(*m_source, m_conflictHandler); }
+   {  return propertyMap.at(name)(*m_source, *m_conflictHandler); }
    
-   unsigned int CPropertyAdapter::foreachProperty(std::function<void(API::CProperty const&)> function) const
+   std::pair<unsigned int, unsigned int> CPropertyAdapter::foreachProperty(std::function<bool(API::CProperty const&)> function) const
    {  
-      unsigned int count(0);
+      std::pair<unsigned int, unsigned int> count;
       for (auto const& entry : propertyMap)
       {
-         auto const optionalProperty(entry.second(*m_source, m_conflictHandler));
+         auto const optionalProperty(entry.second(*m_source, *m_conflictHandler));
          if (optionalProperty)
          {  
-            function(optionalProperty.value()); 
-            ++count;
+            if (function(optionalProperty.value()))
+            {  ++count.second; }
+            ++count.first;
          }
       }
       return count;
@@ -126,7 +127,7 @@ namespace Canon
    std::string CPropertyAdapter::toString() const
    {
       std::vector<std::string> lines;
-      foreachProperty([&](auto const& p) { lines.emplace_back(to_string(p)); });
+      foreachProperty([&](auto const& p) { lines.emplace_back(to_string(p)); return true; });
       return boost::join(lines, "\n");
    }
 }}

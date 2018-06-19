@@ -32,10 +32,9 @@ struct XMPWriterTest : VRD::Test::CTempDirectoryAwareTestBase
 
 TEST_F(XMPWriterTest, WriteProperty)
 {
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   CXMPWriter writer(getDirectoryPath() / "WriteProperty.xmp", CXMPWriter::Mode::Normal, conflictHandler);
+   CXMPWriter writer(getDirectoryPath() / "WriteProperty.xmp", std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Normal);
    EXPECT_FALSE(writer.hasChanged());
-   EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(2))));
+   EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(2))));
    EXPECT_TRUE(writer.hasChanged());
    EXPECT_NO_THROW(writer.write());
    EXPECT_FALSE(writer.hasChanged());
@@ -44,17 +43,17 @@ TEST_F(XMPWriterTest, WriteProperty)
 
 TEST_F(XMPWriterTest, OverwriteExisting)
 {
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   EXPECT_CALL(conflictHandler, handle(_)).WillOnce(Return(1));
    {
-      CXMPWriter writer(getDirectoryPath() / "OverwriteExisting.xmp", CXMPWriter::Mode::Normal, conflictHandler);
-      EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4))));
+      CXMPWriter writer(getDirectoryPath() / "OverwriteExisting.xmp", std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Normal);
+      EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4))));
       EXPECT_NO_THROW(writer.write());
    }
    EXPECT_EQ(getEntry("OverwriteExisting.xmp", "Xmp.xmp.Rating").toLong(), 4);
    {
-      CXMPWriter writer(getDirectoryPath() / "OverwriteExisting.xmp", CXMPWriter::Mode::Normal, conflictHandler);
-      EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3)))); ///< Change value
+      auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+      EXPECT_CALL(*conflictHandler, handle(_)).WillOnce(Return(1));
+      CXMPWriter writer(getDirectoryPath() / "OverwriteExisting.xmp", std::move(conflictHandler), CXMPWriter::Mode::Normal);
+      EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3)))); ///< Change value
       EXPECT_NO_THROW(writer.write());
    }   
    EXPECT_EQ(getEntry("OverwriteExisting.xmp", "Xmp.xmp.Rating").toLong(), 3);
@@ -62,10 +61,9 @@ TEST_F(XMPWriterTest, OverwriteExisting)
 
 TEST_F(XMPWriterTest, DryMode)
 {
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   CXMPWriter writer(getDirectoryPath() / "DryMode.xmp", CXMPWriter::Mode::Dry, conflictHandler);
+   CXMPWriter writer(getDirectoryPath() / "DryMode.xmp", std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Dry);
    EXPECT_FALSE(writer.hasChanged());
-   EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(2))));
+   EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(2))));
    EXPECT_TRUE(writer.hasChanged());
    EXPECT_NO_THROW(writer.write());
    EXPECT_FALSE(writer.hasChanged());
@@ -74,8 +72,7 @@ TEST_F(XMPWriterTest, DryMode)
 
 TEST_F(XMPWriterTest, NoDataNoWrite)
 {
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   CXMPWriter writer(getDirectoryPath() / "NoDataNoWrite.xmp", CXMPWriter::Mode::Normal, conflictHandler);
+   CXMPWriter writer(getDirectoryPath() / "NoDataNoWrite.xmp", std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Normal);
    EXPECT_FALSE(writer.hasChanged());
    EXPECT_NO_THROW(writer.write());
    EXPECT_FALSE(boost::filesystem::exists(getDirectoryPath() / "NoDataNoWrite.xmp"));
@@ -86,10 +83,9 @@ TEST_F(XMPWriterTest, NoChangeNoWrite)
    auto const path(getDirectoryPath() / "NoChangeNoWrite.xmp");
    auto const expectedTimePoint(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - std::chrono::hours(1)));
    
-   VRD::Test::CConflictHandlerMock conflictHandler;
    {
-      CXMPWriter writer(path, CXMPWriter::Mode::Normal, conflictHandler);
-      EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4))));
+      CXMPWriter writer(path, std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Normal);
+      EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4))));
       EXPECT_NO_THROW(writer.write());
    }
    EXPECT_EQ(getEntry("NoChangeNoWrite.xmp", "Xmp.xmp.Rating").toLong(), 4);
@@ -97,8 +93,8 @@ TEST_F(XMPWriterTest, NoChangeNoWrite)
    boost::filesystem::last_write_time(path, expectedTimePoint);         ///< Set file time
    auto const realTimePoint(boost::filesystem::last_write_time(path));  ///< Re-read real file time
    {
-      CXMPWriter writer(path, CXMPWriter::Mode::Normal, conflictHandler);
-      EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4)))); ///< Same value
+      CXMPWriter writer(path, std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Normal);
+      EXPECT_FALSE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4)))); ///< Same value
       EXPECT_NO_THROW(writer.write());
    }   
    EXPECT_EQ(boost::filesystem::last_write_time(path), realTimePoint);  ///< No change
@@ -106,22 +102,22 @@ TEST_F(XMPWriterTest, NoChangeNoWrite)
 
 TEST_F(XMPWriterTest, ConflictUpdate)
 {
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   EXPECT_CALL(conflictHandler, handle(_)).WillOnce(Return(1));
-   CXMPWriter writer(getDirectoryPath() / "ConflictUpdate.xmp", CXMPWriter::Mode::Normal, conflictHandler);
-   EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(2))));
-   EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3))));
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+   EXPECT_CALL(*conflictHandler, handle(_)).WillOnce(Return(1));
+   CXMPWriter writer(getDirectoryPath() / "ConflictUpdate.xmp", std::move(conflictHandler), CXMPWriter::Mode::Normal);
+   EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(2))));
+   EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3))));
    EXPECT_NO_THROW(writer.write());
    EXPECT_EQ(getEntry("ConflictUpdate.xmp", "Xmp.xmp.Rating").toLong(), 3);
 }
 
 TEST_F(XMPWriterTest, ConflictKeep)
 {
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   EXPECT_CALL(conflictHandler, handle(_)).WillOnce(Return(0));
-   CXMPWriter writer(getDirectoryPath() / "ConflictKeep.xmp", CXMPWriter::Mode::Normal, conflictHandler);
-   EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(1))));
-   EXPECT_NO_THROW(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3))));
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+   EXPECT_CALL(*conflictHandler, handle(_)).WillOnce(Return(0));
+   CXMPWriter writer(getDirectoryPath() / "ConflictKeep.xmp", std::move(conflictHandler), CXMPWriter::Mode::Normal);
+   EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(1))));
+   EXPECT_FALSE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3))));
    EXPECT_NO_THROW(writer.write());
    EXPECT_EQ(getEntry("ConflictKeep.xmp", "Xmp.xmp.Rating").toLong(), 1);
 }

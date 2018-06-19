@@ -41,9 +41,9 @@ TEST(CanonPropertyAdapterTest, VRD1_CheckMark_Only)
       .WillOnce(Return(getVRD1CheckMark(3)))
       .WillOnce(Return(getVRD1CheckMark(4))) ///< Values > 4 are unsupported in VRD1
       .WillOnce(Return(getVRD1CheckMark(0)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
    
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
    EXPECT_EQ(getRating(5), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(4), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(3), *adapter.getProperty(to_string(API::PropertyType::Rating)));
@@ -63,9 +63,9 @@ TEST(CanonPropertyAdapterTest, VRD2_CheckMark_Only)
       .WillOnce(Return(getVRD2CheckMark(5)))
       .WillOnce(Return(getVRD2CheckMark(6)))
       .WillOnce(Return(getVRD2CheckMark(0)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
    
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
    EXPECT_EQ(getRating(5), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(4), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(3), *adapter.getProperty(to_string(API::PropertyType::Rating)));
@@ -87,9 +87,9 @@ TEST(CanonPropertyAdapterTest, DR4_CheckMark_Only)
       .WillOnce(Return(getDR4CheckMark(5)))
       .WillOnce(Return(getDR4CheckMark(6)))
       .WillOnce(Return(getDR4CheckMark(0)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
    
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
    EXPECT_EQ(getRating(5), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(4), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(3), *adapter.getProperty(to_string(API::PropertyType::Rating)));
@@ -113,9 +113,9 @@ TEST(CanonPropertyAdapterTest, XMP_Rating_Only)
       .WillOnce(Return(getXMPRating(0)))
       .WillOnce(Return(getXMPRating(-1)))
       .WillOnce(Return(getXMPRating(-2)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
    
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
    EXPECT_EQ(getRating(1), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(2), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(3), *adapter.getProperty(to_string(API::PropertyType::Rating)));
@@ -135,10 +135,10 @@ TEST(CanonPropertyAdapterTest, UnmatchingConflictSelection)
       .WillOnce(Return(getVRD1CheckMark(2)));
    EXPECT_CALL(*query, getProperty(to_string(Canon::PropertyType::VRD2_CheckMark)))
       .WillOnce(Return(getVRD2CheckMark(1)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   EXPECT_CALL(conflictHandler, handle(_)).WillOnce(Return(3));
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+   EXPECT_CALL(*conflictHandler, handle(_)).WillOnce(Return(3));
 
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
 
    EXPECT_THROW(adapter.getProperty(to_string(API::PropertyType::Rating)), std::domain_error);
 }
@@ -160,13 +160,13 @@ TEST(CanonPropertyAdapterTest, Conflicting_VRD1_VRD2_CheckMark)
       .WillOnce(Return(getVRD2CheckMark(4)))
       .WillOnce(Return(getVRD2CheckMark(5)))
       .WillRepeatedly(Return(getVRD2CheckMark(0)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   EXPECT_CALL(conflictHandler, handle(_))
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+   EXPECT_CALL(*conflictHandler, handle(_))
       .WillOnce(Return(0))
       .WillOnce(Return(0))
       .WillOnce(Return(1));
    
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
 
    EXPECT_EQ(getRating(4), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(3), *adapter.getProperty(to_string(API::PropertyType::Rating)));
@@ -192,13 +192,13 @@ TEST(CanonPropertyAdapterTest, Conflicting_VRD2_DR4_CheckMark)
       .WillOnce(Return(getDR4CheckMark(4)))
       .WillOnce(Return(getDR4CheckMark(5)))
       .WillRepeatedly(Return(getDR4CheckMark(0)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   EXPECT_CALL(conflictHandler, handle(_))
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+   EXPECT_CALL(*conflictHandler, handle(_))
       .WillOnce(Return(1))
       .WillOnce(Return(0))
       .WillOnce(Return(0));
    
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
  
    EXPECT_EQ(getRating(5), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(2), *adapter.getProperty(to_string(API::PropertyType::Rating)));
@@ -223,13 +223,13 @@ TEST(CanonPropertyAdapterTest, Conflicting_DR4_CheckMark_XMP_Rating)
       .WillOnce(Return(getXMPRating(4)))
       .WillOnce(Return(getXMPRating(-1)))
       .WillRepeatedly(Return(getXMPRating(0)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   EXPECT_CALL(conflictHandler, handle(_))
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+   EXPECT_CALL(*conflictHandler, handle(_))
       .WillOnce(Return(1))
       .WillOnce(Return(1))
       .WillOnce(Return(0));
 
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
    
    EXPECT_EQ(getRating(5), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(5), *adapter.getProperty(to_string(API::PropertyType::Rating)));
@@ -261,14 +261,14 @@ TEST(CanonPropertyAdapterTest, Conflicting_VRD2_DR4_CheckMark_XMP_Rating)
       .WillOnce(Return(getXMPRating(3))) // 3
       .WillOnce(Return(getXMPRating(-1)))
       .WillRepeatedly(Return(getXMPRating(0)));
-   VRD::Test::CConflictHandlerMock conflictHandler;
-   EXPECT_CALL(conflictHandler, handle(_))
+   auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
+   EXPECT_CALL(*conflictHandler, handle(_))
       .WillOnce(Return(2))
       .WillOnce(Return(0))
       .WillOnce(Return(0))
       .WillOnce(Return(1));
    
-   Canon::CPropertyAdapter adapter(std::move(query), conflictHandler);
+   Canon::CPropertyAdapter adapter(std::move(query), std::move(conflictHandler));
    
    EXPECT_EQ(getRating(5), *adapter.getProperty(to_string(API::PropertyType::Rating)));
    EXPECT_EQ(getRating(-1), *adapter.getProperty(to_string(API::PropertyType::Rating)));

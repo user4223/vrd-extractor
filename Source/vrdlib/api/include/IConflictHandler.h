@@ -4,6 +4,8 @@
 #include <string>
 #include <experimental/optional>
 
+#include <boost/filesystem/path.hpp>
+
 namespace VRD
 {
 namespace API
@@ -28,4 +30,9 @@ namespace API
    
    bool operator==(IConflictHandler::Result const& a, IConflictHandler::Result const& b);
    bool operator!=(IConflictHandler::Result const& a, IConflictHandler::Result const& b);
+   
+   struct IConflictHandlerFactory
+   {
+      virtual std::unique_ptr<IConflictHandler> create(boost::filesystem::path filePath) = 0;
+   };
 }}

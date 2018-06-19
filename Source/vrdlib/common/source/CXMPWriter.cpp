@@ -7,11 +7,11 @@
 
 namespace VRD
 {
-   CXMPWriter::CXMPWriter(boost::filesystem::path const& path, Mode mode, API::IConflictHandler& conflictHandler)
+   CXMPWriter::CXMPWriter(boost::filesystem::path const& path, std::unique_ptr<API::IConflictHandler> conflictHandler, Mode mode)
       :m_logger(log4cxx::Logger::getLogger("VRD.CXMPWriter"))
       ,m_path(path)
+      ,m_conflictHandler(std::move(conflictHandler))
       ,m_mode(mode)
-      ,m_conflictHandler(conflictHandler)
       ,m_xmp(std::make_unique<Exiv2::XmpData>())
       ,m_changed(false)
    {  
@@ -75,7 +75,7 @@ namespace VRD
       m_changed = false;
    }
    
-   void CXMPWriter::setProperty(API::CProperty property)
+   bool CXMPWriter::setProperty(API::CProperty property)
    {
       Exiv2::XmpKey const key(property.name);
       Exiv2::XmpTextValue const value(API::to_string(property.value));
@@ -87,7 +87,7 @@ namespace VRD
          {  throw std::domain_error("Failed to add XMP entry: " + key.key()); }
          
          LOG4CXX_DEBUG(m_logger, "Added property: " << property);
-         m_changed = true;
+         return (m_changed = true);
       });      
       
       if(existingEntry != m_xmp->end()) 
@@ -95,19 +95,18 @@ namespace VRD
          auto const existingValueString(existingEntry->toString());
          if (existingValueString.compare(value.toString()) != 0)
          {
+            LOG4CXX_DEBUG(m_logger, "Try solving a conflict for key: " << key.key());
+            
             std::vector<std::string> options;
-            options.push_back("Existing " + property.name + ": " + existingValueString);
-            options.push_back("Imported " + property.name + ": " + value.toString());
-            auto const selectedValue(m_conflictHandler.handle(options).selection.value());
+            options.push_back(property.name + ": " + existingValueString + " [Existing in destination]");
+            options.push_back(property.name + ": " + value.toString() +    " [Imported from source]");
+            auto const selectedValue(m_conflictHandler->handle(options).selection.value());
             
             if (selectedValue == 0) ///< Keep existing value
-            {  return; }
+            {  return false; }
             else
             if (selectedValue == 1) ///< Overwrite with imported value
-            {  
-               update(); 
-               return;
-            }
+            {  return update(); }
             
             /** \todo This cannot happen */
             std::ostringstream os;
@@ -116,10 +115,10 @@ namespace VRD
          }
          
          LOG4CXX_DEBUG(m_logger, "Found existing key with same value, skipping key: " << key.key() << ", Value: " << value);
-         return;
+         return false;
       }
 
-      update();
+      return update();
    }
    
    bool CXMPWriter::hasChanged() const { return m_changed; }

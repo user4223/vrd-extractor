@@ -68,8 +68,8 @@ TEST_F(CanonIntegrationTest, CR2_DPP3_CheckMark_Rating_Conflict)
    VRD::Canon::CCR2().interpret(*context);
    std::stringstream stream;
    stream << "abc\n-1\n1\n23\n0\nx\n";
-   VRD::Utility::CManualConflictHandler conflictHandler(stream, std::cout);
-   VRD::Canon::CPropertyAdapter adapter(std::move(context), conflictHandler);
+   auto conflictHandler(std::make_unique<VRD::Utility::CManualConflictHandler>(stream, std::cout, image));
+   VRD::Canon::CPropertyAdapter adapter(std::move(context), std::move(conflictHandler));
    EXPECT_EQ(4, boost::get<int16_t>(adapter.getProperty(to_string(VRD::API::PropertyType::Rating)).value().value));
    EXPECT_EQ(2, boost::get<int16_t>(adapter.getProperty(to_string(VRD::API::PropertyType::Rating)).value().value));
    EXPECT_THROW(adapter.getProperty(to_string(VRD::API::PropertyType::Rating)), std::domain_error);

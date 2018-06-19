@@ -13,7 +13,7 @@ namespace VRD
 {
    struct CExtractor
    {
-      CExtractor(boost::filesystem::path const& root, std::string whiteListRegex, std::unique_ptr<VRD::API::IConflictHandler> conflictHandler, bool dryMode);
+      CExtractor(boost::filesystem::path const& root, std::string whiteListRegex, std::unique_ptr<VRD::API::IConflictHandlerFactory> conflictHandlerFactory, bool dryMode);
       
    private:
       log4cxx::LoggerPtr m_logger;

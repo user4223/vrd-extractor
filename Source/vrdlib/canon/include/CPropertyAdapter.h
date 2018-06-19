@@ -13,14 +13,14 @@ namespace Canon
 {
    struct CPropertyAdapter : public API::IPropertySource
    {     
-      CPropertyAdapter(std::unique_ptr<IPropertySource> source, API::IConflictHandler& conflictHandler);
+      CPropertyAdapter(std::unique_ptr<IPropertySource> source, std::unique_ptr<API::IConflictHandler> conflictHandler);
       
       virtual OptionalPropertyType getProperty(std::string name) const override;
-      virtual unsigned int foreachProperty(std::function<void(API::CProperty const&)> function) const override;
+      virtual std::pair<unsigned int, unsigned int> foreachProperty(std::function<bool(API::CProperty const&)> function) const override;
       virtual std::string toString() const override;
       
    private:
       std::unique_ptr<API::IPropertySource> m_source;
-      API::IConflictHandler& m_conflictHandler;
+      std::unique_ptr<API::IConflictHandler> m_conflictHandler;
    };   
 }}

@@ -13,37 +13,40 @@ struct PropertySourceFactoryTest : public VRD::Test::CSampleAwareTestBase
    virtual void SetUp() override
    {  
       CSampleAwareTestBase::SetUp();
-      m_handler = std::make_unique<VRD::Test::CConflictHandlerMock>();
+      m_handlerFactory = std::make_unique<VRD::Test::CConflictHandlerMockFactory>([]
+      {
+         return std::make_unique<VRD::Test::CConflictHandlerMock>();
+      });      
    }
    
    virtual void TearDown() override 
    {
       CSampleAwareTestBase::TearDown();
-      m_handler.reset();
+      m_handlerFactory.reset();
    }
    
-   VRD::API::IConflictHandler& getConflictHandler() { return *m_handler; }
+   VRD::API::IConflictHandlerFactory& getConflictHandlerFactory() { return *m_handlerFactory; }
    
 private:
-   std::unique_ptr<VRD::API::IConflictHandler> m_handler;
+   std::unique_ptr<VRD::API::IConflictHandlerFactory> m_handlerFactory;
 };
 
 TEST_F(PropertySourceFactoryTest, UnknownType)
 {
-   VRD::Common::CPropertySourceFactory factory(getConflictHandler());
+   VRD::Common::CPropertySourceFactory factory(getConflictHandlerFactory());
    EXPECT_THROW(factory.create(getSampleDirectory() / "blub.blub"), std::invalid_argument);
 }
 
 TEST_F(PropertySourceFactoryTest, VRDType)
 {
-   VRD::Common::CPropertySourceFactory factory(getConflictHandler());
+   VRD::Common::CPropertySourceFactory factory(getConflictHandlerFactory());
    std::unique_ptr<VRD::API::IPropertySource> source;
    EXPECT_NO_THROW(source = factory.create(getSampleDirectory() / "VRD" / "V3_CM4.vrd"));
 }
 
 TEST_F(PropertySourceFactoryTest, DR4Type)
 {
-   VRD::Common::CPropertySourceFactory factory(getConflictHandler());
+   VRD::Common::CPropertySourceFactory factory(getConflictHandlerFactory());
    std::unique_ptr<VRD::API::IPropertySource> source;
    EXPECT_NO_THROW(source = factory.create(getSampleDirectory() / "DR4" / "V4_CM2.dr4"));
 }

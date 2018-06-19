@@ -12,12 +12,14 @@ std::stringstream makeInput(std::vector<int> values)
    return s;
 }
 
+boost::filesystem::path const somePath("some/path/to/file");
+
 TEST(ManualConflictHandlerTest, SelectInRange)
 {
    auto stream(makeInput({1,0,2}));
    std::vector<std::string> options({"OptionA","OptionB","OptionC"});
    
-   Utility::CManualConflictHandler h(stream, std::cout);
+   Utility::CManualConflictHandler h(stream, std::cout, somePath);
    EXPECT_EQ(API::IConflictHandler::Result(1), h.handle(options));
    EXPECT_EQ(API::IConflictHandler::Result(0), h.handle(options));
    EXPECT_EQ(API::IConflictHandler::Result(2), h.handle(options));
@@ -28,7 +30,7 @@ TEST(ManualConflictHandlerTest, EmptyOptionList)
    auto stream(makeInput({1}));
    std::vector<std::string> options;
    
-   Utility::CManualConflictHandler h(stream, std::cout);
+   Utility::CManualConflictHandler h(stream, std::cout, somePath);
    EXPECT_THROW(h.handle(options), std::invalid_argument);
 }
 
@@ -37,7 +39,7 @@ TEST(ManualConflictHandlerTest, SelectAboveRange)
    auto stream(makeInput({2,0}));   
    std::vector<std::string> options({"OptionA","OptionB"});
    
-   VRD::Utility::CManualConflictHandler h(stream, std::cout);
+   VRD::Utility::CManualConflictHandler h(stream, std::cout, somePath);
    EXPECT_EQ(API::IConflictHandler::Result(0), h.handle(options));
 }
 
@@ -46,7 +48,7 @@ TEST(ManualConflictHandlerTest, SelectBelowRange)
    auto stream(makeInput({-1,1}));
    std::vector<std::string> options({"OptionA","OptionB"});
    
-   VRD::Utility::CManualConflictHandler h(stream, std::cout);
+   VRD::Utility::CManualConflictHandler h(stream, std::cout, somePath);
    EXPECT_EQ(API::IConflictHandler::Result(1), h.handle(options));
 }
 
@@ -57,7 +59,7 @@ TEST(ManualConflictHandlerTest, InvalidSelection)
    
    std::vector<std::string> options({"OptionA","OptionB"});
    
-   VRD::Utility::CManualConflictHandler h(s, std::cout);
+   VRD::Utility::CManualConflictHandler h(s, std::cout, somePath);
    EXPECT_THROW(h.handle(options), std::domain_error);
 }
 
@@ -68,7 +70,7 @@ TEST(ManualConflictHandlerTest, Terminate)
    
    std::vector<std::string> options({"OptionA","OptionB"});
    
-   VRD::Utility::CManualConflictHandler h(s, std::cout);
+   VRD::Utility::CManualConflictHandler h(s, std::cout, somePath);
    EXPECT_THROW(h.handle(options), std::domain_error);
 }
 
@@ -79,7 +81,7 @@ TEST(ManualConflictHandlerTest, EmptyInput)
    
    std::vector<std::string> options({"OptionA"});
    
-   VRD::Utility::CManualConflictHandler h(s, std::cout);
+   VRD::Utility::CManualConflictHandler h(s, std::cout, somePath);
    EXPECT_THROW(h.handle(options), std::domain_error);
 }
 

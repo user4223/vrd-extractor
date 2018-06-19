@@ -83,7 +83,7 @@ int main(int argc, char** argv)
       VRD::CExtractor(
           vm["root"].as<bfs::path>()
          ,vm["white-list-regex"].as<std::string>()
-         ,std::make_unique<VRD::Utility::CManualConflictHandler>(std::cin, std::cout)
+         ,std::make_unique<VRD::Utility::CManualConflictHandlerFactory>(std::cin, std::cout)
          ,vm["dry"].as<bool>());
       return 0;
    }

@@ -14,10 +14,11 @@ namespace Common
       ,m_properties()
    {}
 
-   void CPropertyHandler::setProperty(API::CProperty property)
+   bool CPropertyHandler::setProperty(API::CProperty property)
    {  
-      auto const& entry(m_properties.emplace(std::make_pair(property.name, property)).first->second);
-      LOG4CXX_DEBUG(m_logger, entry);
+      auto result(m_properties.emplace(std::make_pair(property.name, property)));
+      LOG4CXX_DEBUG(m_logger, result.first->second);
+      return result.second;
    }
 
    CPropertyHandler::OptionalPropertyType CPropertyHandler::getProperty(std::string name) const
@@ -29,13 +30,14 @@ namespace Common
       return std::experimental::make_optional(entry->second); 
    }
 
-   unsigned int CPropertyHandler::foreachProperty(std::function<void(API::CProperty const&)> function) const
+   std::pair<unsigned int, unsigned int> CPropertyHandler::foreachProperty(std::function<bool(API::CProperty const&)> function) const
    {  
-      unsigned int count(0);
+      std::pair<unsigned int, unsigned int> count;
       for (auto const& entry : m_properties)
       {
-         function(entry.second); 
-         ++count;
+         if (function(entry.second))
+         {  ++count.second; }
+         ++count.first;
       } 
       return count;
    }
@@ -43,7 +45,7 @@ namespace Common
    std::string CPropertyHandler::toString() const
    {
       std::vector<std::string> lines;
-      foreachProperty([&](auto const& p) { lines.emplace_back(to_string(p)); });
+      foreachProperty([&](auto const& p) { lines.emplace_back(to_string(p)); return true; });
       return boost::join(lines, "\n");
    }
 }}

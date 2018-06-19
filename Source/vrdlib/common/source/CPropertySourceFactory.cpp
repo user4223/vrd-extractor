@@ -25,39 +25,19 @@ namespace Common
 {  
    auto const map([]
    {
-      std::map<std::string, std::function<std::unique_ptr<API::IPropertySource>(boost::filesystem::path, API::IConflictHandler&)>> m;
-      m.emplace(std::make_pair(".cr2", [](auto path, auto& conflictHandler)
-      {
-         auto context(std::make_unique<CContext>(std::make_unique<Utility::CStreamReader>(path.string())));
-         Canon::CCR2().interpret(*context);
-         return std::make_unique<Canon::CPropertyAdapter>(std::move(context), conflictHandler);
-      }));
-      m.emplace(std::make_pair(".vrd", [](auto path, auto& conflictHandler)
-      {
-         auto context(std::make_unique<CContext>(std::make_unique<Utility::CStreamReader>(path.string())));
-         Canon::CVRD().interpret(*context);
-         return std::make_unique<Canon::CPropertyAdapter>(std::move(context), conflictHandler);
-      }));
-      m.emplace(std::make_pair(".dr4", [](auto path, auto& conflictHandler)
-      {
-         auto context(std::make_unique<CContext>(std::make_unique<Utility::CStreamReader>(path.string())));
-         Canon::CDR4().interpret(*context);
-         return std::make_unique<Canon::CPropertyAdapter>(std::move(context), conflictHandler);
-      }));
-      m.emplace(std::make_pair(".crw", [](auto path, auto& conflictHandler)
-      {
-         auto context(std::make_unique<CContext>(std::make_unique<Utility::CStreamReader>(path.string())));
-         Canon::CCRW().interpret(*context);
-         return std::make_unique<Canon::CPropertyAdapter>(std::move(context), conflictHandler);
-      }));
+      std::map<std::string, std::function<void(CContext&)>> m;
+      m.emplace(std::make_pair(".cr2", [](auto& context) { Canon::CCR2().interpret(context); }));
+      m.emplace(std::make_pair(".vrd", [](auto& context) { Canon::CVRD().interpret(context); }));
+      m.emplace(std::make_pair(".dr4", [](auto& context) { Canon::CDR4().interpret(context); }));
+      m.emplace(std::make_pair(".crw", [](auto& context) { Canon::CCRW().interpret(context); }));
       
       /** Add further supported file extensions and interpreters here.
        */
       return m;
    }());
    
-   CPropertySourceFactory::CPropertySourceFactory(API::IConflictHandler& conflictHandler)
-      :m_conflictHandler(conflictHandler)
+   CPropertySourceFactory::CPropertySourceFactory(API::IConflictHandlerFactory& conflictHandlerFactory)
+      :m_conflictHandlerFactory(conflictHandlerFactory)
    {}
    
    std::unique_ptr<API::IPropertySource> CPropertySourceFactory::create(boost::filesystem::path filePath)
@@ -65,7 +45,11 @@ namespace Common
       auto const extension(boost::algorithm::to_lower_copy(filePath.extension().string()));
       auto const entry(map.find(extension));
       if (entry != map.end())
-      {  return entry->second(filePath, m_conflictHandler); }
+      {  
+         auto context(std::make_unique<CContext>(std::make_unique<Utility::CStreamReader>(filePath.string())));
+         entry->second(*context);
+         return std::make_unique<Canon::CPropertyAdapter>(std::move(context), m_conflictHandlerFactory.create(filePath));
+      }
       
       std::vector<std::string> extensions;
       std::transform(map.begin(), map.end(), std::back_inserter(extensions), [](auto const& e){ return e.first; });

@@ -13,11 +13,11 @@ namespace Common
 {
    struct CPropertySourceFactory
    {
-      CPropertySourceFactory(API::IConflictHandler& conflictHandler);
+      CPropertySourceFactory(API::IConflictHandlerFactory& conflictHandlerFactory);
       
       std::unique_ptr<API::IPropertySource> create(boost::filesystem::path filePath);
       
    private:
-      API::IConflictHandler& m_conflictHandler;
+      API::IConflictHandlerFactory& m_conflictHandlerFactory;
    };   
 }}

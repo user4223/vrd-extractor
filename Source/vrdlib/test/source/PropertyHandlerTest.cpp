@@ -21,7 +21,7 @@ TEST(PropertyHandlerTest, ForeachProperty)
    EXPECT_NO_THROW(handler.setProperty(CProperty("bli", CProperty::ValueType(23), "blubblub")));
    EXPECT_NO_THROW(handler.setProperty(CProperty("bla", CProperty::ValueType(5), "blub")));   
    std::vector<CProperty> results;
-   handler.foreachProperty([&](CProperty const& p) { results.push_back(p); });
+   EXPECT_EQ(std::make_pair(2u, 2u), handler.foreachProperty([&](CProperty const& p) { results.push_back(p); return true; }));
    EXPECT_EQ(results[0].name, "bla");
    EXPECT_EQ(results[0].value, CProperty::ValueType(5));
    EXPECT_EQ(results[0].description, "blub");
@@ -29,6 +29,14 @@ TEST(PropertyHandlerTest, ForeachProperty)
    EXPECT_EQ(results[1].value, CProperty::ValueType(23));
    EXPECT_EQ(results[1].description, "blubblub");
    EXPECT_EQ(results.size(), 2u);
+}
+
+TEST(PropertyHandlerTest, ForeachPropertyUnsuccessful)
+{
+   CPropertyHandler handler;
+   EXPECT_NO_THROW(handler.setProperty(CProperty("bli", CProperty::ValueType(23), "blubblub")));
+   EXPECT_NO_THROW(handler.setProperty(CProperty("bla", CProperty::ValueType(5), "blub")));   
+   EXPECT_EQ(std::make_pair(2u, 0u), handler.foreachProperty([&](CProperty const& p) { return false; }));
 }
 
 TEST(PropertyHandlerTest, ToString)

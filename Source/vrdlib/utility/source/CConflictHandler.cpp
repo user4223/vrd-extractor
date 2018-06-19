@@ -30,9 +30,10 @@ namespace Utility
       return inValue;
    }
    
-   CManualConflictHandler::CManualConflictHandler(std::istream& is, std::ostream& os)
+   CManualConflictHandler::CManualConflictHandler(std::istream& is, std::ostream& os, boost::filesystem::path filePath)
       :m_is(is)
       ,m_os(os)
+      ,m_filePath(filePath)
    {}
    
    CManualConflictHandler::Result CManualConflictHandler::handle(std::vector<std::string> const& _options)
@@ -50,7 +51,8 @@ namespace Utility
          if (!m_is.good())
          {  throw std::domain_error("Input stream failed"); }
          
-         m_os << "Select one option:\n";
+         m_os << "Conflict in file: " << m_filePath.string() << "\n"
+              << "Select one option:\n";
          for (auto const& option : options) 
          {  m_os << "   " << option.first << ": " << option.second << '\n'; }
          
@@ -67,7 +69,7 @@ namespace Utility
          
          if (input.size() == 1 && input[0] == 'x')
          {  
-            /** \todo This should be an move specific exeption to enable users to catch exactly this case 
+            /** \todo This should be a specific exeption type to enable users to catch exactly this case 
              */
             throw std::domain_error("Abort requested by user, terminate processing here"); 
          }
@@ -99,9 +101,12 @@ namespace Utility
       }
    }
    
-   CCustomConflictHandler::CCustomConflictHandler(FunctionType f)
-      :m_f(f)
-   {}
+   CManualConflictHandlerFactory::CManualConflictHandlerFactory(std::istream& is, std::ostream& os) : m_is(is), m_os(os) {}
+   
+   std::unique_ptr<API::IConflictHandler> CManualConflictHandlerFactory::create(boost::filesystem::path filePath)
+   {  return std::make_unique<CManualConflictHandler>(m_is, m_os, filePath); }
+   
+   CCustomConflictHandler::CCustomConflictHandler(FunctionType f) : m_f(f) {}
    
    CCustomConflictHandler::Result CCustomConflictHandler::handle(std::vector<std::string> const& options)
    {  return Result(validate(m_f(options), static_cast<int>(options.size()-1))); }

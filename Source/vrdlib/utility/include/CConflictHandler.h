@@ -22,10 +22,22 @@ namespace Utility
    
    struct CManualConflictHandler : public AConflictHandlerBase
    {      
-      CManualConflictHandler(std::istream& is, std::ostream& os);
+      CManualConflictHandler(std::istream& is, std::ostream& os, boost::filesystem::path filePath);
       
       virtual Result handle(std::vector<std::string> const& options);
 
+   private:
+      std::istream& m_is;
+      std::ostream& m_os;
+      boost::filesystem::path m_filePath;
+   };
+   
+   struct CManualConflictHandlerFactory : public API::IConflictHandlerFactory
+   {
+      CManualConflictHandlerFactory(std::istream& is, std::ostream& os);
+      
+      virtual std::unique_ptr<API::IConflictHandler> create(boost::filesystem::path filePath) override;
+   
    private:
       std::istream& m_is;
       std::ostream& m_os;

@@ -15,9 +15,9 @@ namespace Common
    {
       CPropertyHandler();
       
-      virtual void setProperty(API::CProperty property) override;
+      virtual bool setProperty(API::CProperty property) override;
       virtual OptionalPropertyType getProperty(std::string name) const override;
-      virtual unsigned int foreachProperty(std::function<void(API::CProperty const&)> f) const override;
+      virtual std::pair<unsigned int, unsigned int> foreachProperty(std::function<bool(API::CProperty const&)> f) const override;
       virtual std::string toString() const override;
       
    private:
