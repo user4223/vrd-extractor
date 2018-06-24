@@ -42,9 +42,11 @@ namespace Canon
          auto const entry = xmp.findKey(Exiv2::XmpKey(key));
          if (entry != xmp.end())
          {  
-            auto const rating(static_cast<int16_t>(entry->toLong()));            
+            auto const rating(static_cast<int16_t>(entry->toLong()));
             context.setProperty(API::CProperty(to_string(PropertyType::XMP_Rating), API::CProperty::ValueType(rating)));
          }
+         else
+         {  LOG4CXX_DEBUG(context.getLogger(), key << " not found"); }
       }
       {
          std::string const key("Exif.Canon.VRDOffset");
@@ -76,7 +78,11 @@ namespace Canon
                
                LOG4CXX_DEBUG(context.getLogger(), key << ": " << offset);
             }
+            else
+            {  LOG4CXX_DEBUG(context.getLogger(), key << " not set"); }
          }
+         else
+         {  LOG4CXX_DEBUG(context.getLogger(), key << " not found"); }
       }
       return true;
    }

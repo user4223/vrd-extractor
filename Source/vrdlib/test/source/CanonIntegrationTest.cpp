@@ -25,10 +25,8 @@
  *  pure recipe files VRDs are compulsory since those are text files and 
  *  checked in.
  * 
- *  \todo Add tests for DR4 rating
+ *  \todo Add tests for DR4 Rating, CRW DPP4 Rating, CRW DPP4 Check Mark
  */
-
-void printWarning(auto const& path) { std::cout << "\nWarning: Skipping test! No matching files found in: " << path << "\n\n" << std::flush; }
 
 struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
 {
@@ -39,10 +37,7 @@ struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
    {
       auto const files(VRD::Utility::getNonEmptyMatches(getSampleDirectory(), std::regex(fileRegex)));
       if (files.empty())
-      {  
-         printWarning(getSampleDirectory());
-         return 0;
-      }
+      {  return 0; }
       unsigned int index(0);
       for (auto const& file : files)
       {
@@ -54,16 +49,9 @@ struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
    }
 };
 
-auto const optionalCheckForce(true); ///< Turn to true for local checks agains real images
-
 TEST_F(CanonIntegrationTest, CR2_DPP3_CheckMark_Rating_Conflict)
 {
    auto const image(getSampleDirectory() / "CR2" / "DPP_V3" / "V3_CM2_Rating2.CR2");
-   if (!optionalCheckForce && !boost::filesystem::exists(image))
-   {
-      printWarning(getSampleDirectory() / "CR2" / "DPP_V3");
-      return;
-   }
    auto context(std::make_unique<VRD::CContext>(std::make_unique<VRD::Utility::CStreamReader>(image)));
    VRD::Canon::CCR2().interpret(*context);
    std::stringstream stream;
@@ -92,7 +80,7 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V3_CheckMark)
          EXPECT_EQ(cm, boost::get<uint16_t>(property.value().value));
       }
    }));
-   if (optionalCheckForce) EXPECT_EQ(count, 5u);
+   EXPECT_EQ(count, 5u);
 }
 
 TEST_F(CanonIntegrationTest, CRW_DPP_V3_CheckMark)
@@ -112,7 +100,7 @@ TEST_F(CanonIntegrationTest, CRW_DPP_V3_CheckMark)
          EXPECT_EQ(cm, boost::get<uint16_t>(property.value().value));
       }
    }));
-   if (optionalCheckForce) EXPECT_EQ(count, 5u);
+   EXPECT_EQ(count, 5u);
 }
 
 TEST_F(CanonIntegrationTest, CR2_DPP_V4_CheckMark)
@@ -127,7 +115,7 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V4_CheckMark)
          EXPECT_EQ(cm, boost::get<uint32_t>(property.value().value));
       }
    }));
-   if (optionalCheckForce) EXPECT_EQ(count, 5u);
+   EXPECT_EQ(count, 5u);
 }
 
 TEST_F(CanonIntegrationTest, CR2_DPP_V3_Rating)
@@ -142,11 +130,10 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V3_Rating)
          EXPECT_EQ(r > 5 ? -1 : r, boost::get<int16_t>(property.value().value));
       }
    }));
-   if (optionalCheckForce) EXPECT_EQ(count, 6u);
+   EXPECT_EQ(count, 6u);
 }
 
-/*
-TEST_F(CanonIntegrationTest, CRW_DPP_V3_Rating)
+/*TEST_F(CanonIntegrationTest, CRW_DPP_V3_Rating)
 {
    VRD::Canon::CCRW interpreter;
    auto const count(foreach(".*[/\\]DPP[_]V3[/\\]V3[_]Rating.+?[.]CRW$", interpreter, [this](auto index, auto const& query)
@@ -158,9 +145,8 @@ TEST_F(CanonIntegrationTest, CRW_DPP_V3_Rating)
          EXPECT_EQ(r > 5 ? -1 : r, boost::get<int16_t>(property.value().value));
       }
    }));
-   if (optionalCheckForce) EXPECT_EQ(count, 6u);
-}
-*/
+   EXPECT_EQ(count, 6u);
+}*/
 
 TEST_F(CanonIntegrationTest, CR2_DPP_V4_Rating)
 {
@@ -174,7 +160,7 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V4_Rating)
          EXPECT_EQ(r > 5 ? -1 : r, boost::get<int16_t>(property.value().value));
       }
    }));
-   if (optionalCheckForce) EXPECT_EQ(count, 6u);
+   EXPECT_EQ(count, 6u);
 }
 
 TEST_F(CanonIntegrationTest, CR2_Clean)
@@ -187,7 +173,7 @@ TEST_F(CanonIntegrationTest, CR2_Clean)
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::VRD2_CheckMark)));
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::DR4_CheckMark)));
    }));
-   if (optionalCheckForce) EXPECT_EQ(count, 1u);
+   EXPECT_EQ(count, 1u);
 }
 
 TEST_F(CanonIntegrationTest, CRW_Clean)
@@ -200,7 +186,7 @@ TEST_F(CanonIntegrationTest, CRW_Clean)
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::VRD2_CheckMark)));
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::DR4_CheckMark)));
    }));
-   if (optionalCheckForce) EXPECT_EQ(count, 1u);
+   EXPECT_EQ(count, 1u);
 }
 
 TEST_F(CanonIntegrationTest, VRD_CheckMark)
