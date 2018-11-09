@@ -26,7 +26,7 @@ namespace API
       /** Visits each existing property and calls given function while passing 
        *  it as an argument.
        *  \param function to be called for each existing property
-       *  \return number of properties visited
+       *  \return pair of number of properties and number of propertries visited successfully
        */
       virtual std::pair<unsigned int, unsigned int> foreachProperty(std::function<bool(CProperty const&)> function) const = 0;
       

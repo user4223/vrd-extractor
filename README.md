@@ -10,7 +10,7 @@ by Darktable. Currently supported tags:
   Photographers might have used both independently or mixed over time.
 
 When conflicts between different sources or destination occur, 
-the user is able to solve the it manually.
+the user is able to solve it manually.
 
 # Motivation
 First of all: Actually I like the results when using DPP to process my images and I
