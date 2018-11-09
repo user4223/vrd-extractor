@@ -22,8 +22,9 @@ namespace Canon
           \see https://sno.phy.queensu.ca/~phil/exiftool/canon_raw.html
        */
       
-      if (reader.readRaw<uint16_t>() != 0x4949) ///< Never seen different than little endian (II)
-      {  throw std::domain_error("Invalid CIFF, unsupported byte order found, expected II"); }
+      uint16_t const byteOrder = reader.readRaw<uint16_t>();
+      if (byteOrder != 0x4949) ///< Never seen different than little endian (II)
+      {  throw std::domain_error("Invalid CIFF, unsupported byte order found, expected II, but was: 0x" << std::hex << byteOrder); }
       auto const byteOrderToken(reader.setByteOrderTemporarily(Utility::ByteOrder::LittleEndian));
       
       if (reader.readRaw<uint32_t>() != 26)
