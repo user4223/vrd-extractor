@@ -8,6 +8,7 @@
 #include "vrdlib/utility/include/CStreamReader.h"
 
 #include <stdexcept>
+#include <iomanip>
 
 namespace VRD
 {
@@ -24,7 +25,11 @@ namespace Canon
       
       uint16_t const byteOrder = reader.readRaw<uint16_t>();
       if (byteOrder != 0x4949) ///< Never seen different than little endian (II)
-      {  throw std::domain_error("Invalid CIFF, unsupported byte order found, expected II, but was: 0x" << std::hex << byteOrder); }
+      {  
+         std::ostringstream os;
+         os << "Invalid CIFF, unsupported byte order found, expected II (0x4949), but was: 0x" << std::hex << std::setw(4) << std::setfill('0') << std::uppercase << byteOrder; 
+         throw std::domain_error(os.str());
+      }
       auto const byteOrderToken(reader.setByteOrderTemporarily(Utility::ByteOrder::LittleEndian));
       
       if (reader.readRaw<uint32_t>() != 26)
