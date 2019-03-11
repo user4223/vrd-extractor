@@ -12,7 +12,13 @@
 namespace std
 {
    std::ostream& operator<<(std::ostream& os, std::pair<unsigned int, unsigned int> const& p)
-   {  return os << p.first << "/" << p.second; }
+   {  
+      if (p.first == 0 && p.second == 0)
+      {  os << "0  "; }
+      else
+      {  os << p.first << "/" << p.second; }
+      return os;
+   }
    
    std::pair<unsigned int, unsigned int> operator+(std::pair<unsigned int, unsigned int> a, std::pair<unsigned int, unsigned int> const& b)
    {  
@@ -50,9 +56,19 @@ namespace VRD
          auto const processedProperties(propertySource->foreachProperty([&](auto const& property)
          {  return propertySink->setProperty(property); }));
          
-         auto const changed(processedProperties.second > 0);
-         processedFiles = processedFiles + std::make_pair(1u, changed ? 1 : 0);
-         LOG4CXX_INFO(m_logger, processedProperties << " XMP properties available/changed, " << (changed ? "updating" : "skipping") << " file: " << outFile.string());
+         processedFiles = processedFiles + std::make_pair(1u, processedProperties.second > 0 ? 1u : 0u);
+         
+         std::ostringstream os;
+         os << processedProperties.first << " XMP properties available, ";
+         if (processedProperties.first > 0)
+         {  os << "changed " << processedProperties.second << ", "; }
+         if (processedProperties.second > 0)
+         {  os << "UPDATING"; }
+         else
+         {  os << "skipping"; }
+         os << " file: " << outFile.string();
+         
+         LOG4CXX_INFO(m_logger, os.str());
       }
       
       LOG4CXX_INFO(m_logger, "Files processed/updated: " << processedFiles);
