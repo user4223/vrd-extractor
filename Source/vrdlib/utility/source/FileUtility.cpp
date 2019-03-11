@@ -18,6 +18,12 @@ namespace Utility
          return paths;
       }
       
+      /** \todo Add option to ignore hidden files,
+                because sometimes there are hidden temporary files 
+                with the same extension leading to errors when they are interpreted as
+                normal source files!
+       */
+      
       auto const currentPath(boost::filesystem::current_path());
       for(auto&& entry : boost::filesystem::recursive_directory_iterator(root)) 
       {
