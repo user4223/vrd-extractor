@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 BUILD_DIR=$DIR/build/CodeLite/Debug
-SOURCE_DIR=$DIR/Source
+SOURCE_DIR=$DIR/source
 
 mkdir -p $BUILD_DIR
 pushd $BUILD_DIR

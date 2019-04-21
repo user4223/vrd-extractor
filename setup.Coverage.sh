@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 BUILD_DIR=$DIR/build/Coverage
-SOURCE_DIR=$DIR/Source
+SOURCE_DIR=$DIR/source
 
 rm -rf $BUILD_DIR
 mkdir -p $BUILD_DIR

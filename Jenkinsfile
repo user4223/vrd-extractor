@@ -41,7 +41,7 @@ node {
          sh """
             mkdir -p build
             cd build
-            cmake -DCMAKE_BUILD_TYPE=${buildConfiguration} ../Source
+            cmake -DCMAKE_BUILD_TYPE=${buildConfiguration} ../source
             cmake --build .
          """
       }
@@ -51,7 +51,7 @@ node {
 
          try {
             sh """
-               tar xvf vrdlib.test.images.tar --directory Source/vrdlib/test/
+               tar xvf vrdlib.test.images.tar --directory source/vrdlib/test/
                
                cd bin               
                valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=vrdlib.valgrind.result.xml ./vrdlib.test --gtest_output=xml:vrdlib.test.result.xml
