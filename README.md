@@ -36,9 +36,48 @@ knowledge about the structure of recipe data is taken from there. Thank you Phil
 # Requirements
 
 * C++14 enabled compiler
-* cmake version   >= 2.8.1  
-* boost version   >= 1.61.0
-* log4cxx version >= 0.10.0
-* libexif2        >= 0.25.2
-* gtest           >= 1.8.0  (is downloaded by cmake during setup)
+* cmake (> 3.1.2)  
+* log4cxx  (>= 0.10.0, there is no conan package)
+* libexif2 (>= 0.25.2, no conan package)
+* python3 as requirement for conan
+* conan package manager (See: https://docs.conan.io/en/latest/installation.html)
+
+(boost, gtest gets installed via conan)
+
+# Build Instructions
+```
+mkdir build
+pushd build
+
+# Install dependencies
+#
+conan install --build missing ../
+
+# Build lib, executable and tests
+#
+cmake -DCMAKE_BUILD_TYPE=Release ../source
+cmake --build .
+
+# Run tests
+#
+bin/vrdlib.test
+
+popd
+```
+
+# Installation instructions for Debian like systems
+```
+pushd build
+
+# Create package and check content
+#
+cpack
+dpkg --contents vrdextractor*.deb
+
+# Install package
+#
+sudo dpkg -i vrdextractor*.deb
+
+popd
+```
 
