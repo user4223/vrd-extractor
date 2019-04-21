@@ -38,7 +38,7 @@ knowledge about the structure of recipe data is taken from there. Thank you Phil
 * C++14 enabled compiler
 * cmake (> 3.1.2)  
 * log4cxx  (>= 0.10.0, there is no conan package)
-* libexif2 (>= 0.25.2, no conan package)
+* libexiv2 (>= 0.25.2, no conan package)
 * python3 as requirement for conan
 * conan package manager (See: https://docs.conan.io/en/latest/installation.html)
 
