@@ -9,8 +9,6 @@
 
 #include <exiv2/exiv2.hpp>
 
-#include <log4cxx/logger.h>
-
 namespace VRD
 {
 namespace Canon

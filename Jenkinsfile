@@ -41,6 +41,7 @@ node {
          sh """
             mkdir -p build
             cd build
+            conan install ../
             cmake -DCMAKE_BUILD_TYPE=${buildConfiguration} ../source
             cmake --build .
          """
@@ -53,19 +54,19 @@ node {
             sh """
                tar xvf vrdlib.test.images.tar --directory source/vrdlib/test/
                
-               cd bin               
+               cd build/bin               
                valgrind --leak-check=full --show-reachable=yes --track-origins=yes --xml=yes --xml-file=vrdlib.valgrind.result.xml ./vrdlib.test --gtest_output=xml:vrdlib.test.result.xml
             """
             
             xunit( thresholds: [ skipped(    failureThreshold: '0')
                                 ,failed(     failureThreshold: '0')]
-                  ,tools:      [GoogleTest(  pattern: 'bin/vrdlib.test.result.xml')])
+                  ,tools:      [GoogleTest(  pattern: 'build/bin/vrdlib.test.result.xml')])
             
             publishValgrind(
-               pattern: 'bin/vrdlib.valgrind.result.xml'
+               pattern: 'build/bin/vrdlib.valgrind.result.xml'
             )
          } finally {
-            archiveArtifacts artifacts: 'bin/vrdlib.*.result.xml', flattenDirectories: true
+            archiveArtifacts artifacts: 'build/bin/vrdlib.*.result.xml', flattenDirectories: true
          }
       }
          
