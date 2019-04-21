@@ -5,11 +5,12 @@ SOURCE_DIR=$DIR/source
 
 mkdir -p $BUILD_DIR
 pushd $BUILD_DIR
+   conan install $DIR
    cmake \
-   -DBIN_PATH_POSTFIX=CodeLite/Debug \
    -DCMAKE_BUILD_TYPE=Debug \
    -G"CodeLite - Unix Makefiles" \
     $SOURCE_DIR 
+
+   cmake --build .
 popd
 
-cmake --build $BUILD_DIR --config Debug

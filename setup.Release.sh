@@ -5,8 +5,8 @@ SOURCE_DIR=$DIR/source
 
 mkdir -p $BUILD_DIR
 pushd $BUILD_DIR
+   conan install $DIR
    cmake \
-      -DBIN_PATH_POSTFIX=Release \
       -DCMAKE_BUILD_TYPE=Release \
       $SOURCE_DIR 
 

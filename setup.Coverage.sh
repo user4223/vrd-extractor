@@ -6,8 +6,8 @@ SOURCE_DIR=$DIR/source
 rm -rf $BUILD_DIR
 mkdir -p $BUILD_DIR
 pushd $BUILD_DIR
+   conan install $DIR
    cmake \
-      -DBIN_PATH_POSTFIX=Coverage \
       -DCMAKE_BUILD_TYPE=Coverage \
       $SOURCE_DIR 
 
