@@ -24,6 +24,9 @@ conan_basic_setup(TARGETS)
 find_library(Log4cxx REQUIRED log4cxx) # There is no conan package
 SET(Log4cxx_LIBRARIES log4cxx)         # There is no findpackage
 
+find_library(Exiv2 REQUIRED exiv2)     # There is no working conan package
+SET(Exiv2_LIBRARIES exiv2) 
+
 add_subdirectory(vrdlib)
 add_subdirectory(vrdextractor)
 

@@ -7,6 +7,6 @@ add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
 target_link_libraries(${PROJECT_NAME} 
 	vrdlib.api 
 	vrdlib.canon 
-	CONAN_PKG::Exiv2
+	${Exiv2_LIBRARIES}
 )
 

@@ -9,30 +9,31 @@
 #include <regex>
 #include <set>
 
-struct FileUtilityTest : VRD::Test::CTempDirectoryAwareTestBase 
+struct FileUtilityTest : VRD::Test::CTempDirectoryAwareTestBase
 {
    FileUtilityTest() : CTempDirectoryAwareTestBase("FileUtilityTest") {}
-   
+
    virtual void SetUp() override
-   {  
+   {
       CTempDirectoryAwareTestBase::SetUp();
-      
+
       static const std::array<std::string, 4> types = {"CR2", "vrd", "DR4", "BLA"};
       makeFiles(getDirectoryPath(), "", types);
       boost::filesystem::create_directories(getDirectoryPath() / "A");
       makeFiles(getDirectoryPath() / "A", "A", types);
       boost::filesystem::create_directories(getDirectoryPath() / "B" / "C");
-      makeFiles(getDirectoryPath() / "B" / "C", "C", types);      
+      makeFiles(getDirectoryPath() / "B" / "C", "C", types);
    }
-   
+
 private:
-   void makeFiles(boost::filesystem::path path, std::string _prefix, auto types)
+   template <typename T>
+   void makeFiles(boost::filesystem::path path, std::string _prefix, T types)
    {
       auto const prefix(_prefix.empty() ? "" : _prefix + "_");
-      for (auto const& type : types)
+      for (auto const &type : types)
       {
          std::ofstream((path / (prefix + "nonEmpty." + type)).string()) << 23;
-         std::ofstream((path / (prefix + "empty."    + type)).string());
+         std::ofstream((path / (prefix + "empty." + type)).string());
       }
    }
 };
@@ -57,7 +58,7 @@ TEST_F(FileUtilityTest, MatchSpecificExtension)
    EXPECT_EQ(files.count(relative / "nonEmpty.CR2"), 1u);
    EXPECT_EQ(files.count(relative / "A" / "A_nonEmpty.CR2"), 1u);
    EXPECT_EQ(files.count(relative / "B" / "C" / "C_nonEmpty.CR2"), 1u);
-   
+
    EXPECT_TRUE(boost::filesystem::exists(relative / "empty.CR2")); ///< Exists but not in selection because it's empty
 }
 
