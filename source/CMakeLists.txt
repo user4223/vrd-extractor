@@ -12,7 +12,7 @@ IF(CMAKE_BUILD_TYPE STREQUAL "Coverage")
   message(STATUS "Configure build for coverage analysis")
 ENDIF()
 
-add_compile_options(--std=c++14)
+add_compile_options(--std=c++17)
 add_compile_options(-Wall)
 add_compile_options(-Werror)
 
@@ -24,14 +24,11 @@ conan_basic_setup(TARGETS)
 find_library(Log4cxx REQUIRED log4cxx) # There is no conan package
 SET(Log4cxx_LIBRARIES log4cxx)         # There is no findpackage
 
-find_library(Exiv2 REQUIRED exiv2)     # There is no conan package
-SET(Exiv2_LIBRARIES exiv2)             # There is no findpackage
-
 add_subdirectory(vrdlib)
 add_subdirectory(vrdextractor)
 
 SET(CPACK_PACKAGE_NAME "vrdextractor")
-SET(CPACK_PACKAGE_DESCRIPTION "Tool to extrace virtual recipe data from CRW/CR2 files and to write/merge it to XMP sidecar files used by darktable")
+SET(CPACK_PACKAGE_DESCRIPTION "Tool to extract virtual recipe data from Canon CRW/CR2 files and to write/merge it to XMP sidecar files used by darktable")
 SET(CPACK_PACKAGE_CONTACT "Sascha Lumma")
 SET(CPACK_PACKAGE_VERSION "0.1.0")
 SET(CPACK_PACKAGE_VERSION_MAJOR "0")

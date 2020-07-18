@@ -7,6 +7,7 @@ boost_program_options/1.69.0@bincrafters/stable
 boost_variant/1.69.0@bincrafters/stable
 boost_algorithm/1.69.0@bincrafters/stable
 gtest/1.8.1@bincrafters/stable
+Exiv2/0.27@piponazo/stable
 
 [generators]
 cmake

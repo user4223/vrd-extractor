@@ -9,7 +9,7 @@ target_link_libraries(${PROJECT_NAME}
 	vrdlib.common 
 	vrdlib.canon 
 	vrdlib.utility 
-	${Exiv2_LIBRARIES}
+	CONAN_PKG::Exiv2
 	CONAN_PKG::gtest
 )
 
