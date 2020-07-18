@@ -1,3 +1,5 @@
+![build](https://github.com/karlheinzkurt/vrd-extractor/workflows/build/badge.svg)
+
 # Summary
 Tool to extract VRD recipe data out of CR2/CRW/VRD/DR4 files created while 
 using DPP. The extracted information is written or merged into XMP sidecar files to be used
