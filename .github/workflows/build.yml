@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - name: Checkout
+      uses: actions/checkout@v2
       
     - name: Prepare tooling
       run: |
@@ -53,7 +54,7 @@ jobs:
       working-directory: build
       run: cpack
     
-    - name: Archive debian package
+    - name: Archive Debian package
       uses: actions/upload-artifact@v2
       with:
         name: vrdextractor.deb
