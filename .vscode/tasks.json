@@ -1,0 +1,45 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "prepare",
+      "type": "shell",
+      "command": "mkdir -p build/Debug"
+    },
+    {
+      "label": "dependencies",
+      "type": "shell",
+      "dependsOn": "prepare",
+      "options": {
+        "cwd": "build/Debug"
+      },
+      // When there are linker errors when using gcc, try switching 
+      // explicitly to new abi version by adding this to conan install:
+      //    -s compiler.libcxx=libstdc++11
+      "command": "conan install --build missing ../.."
+    },
+    {
+      "label": "configure",
+      "type": "shell",
+      "dependsOn": "dependencies",
+      "options": {
+        "cwd": "build/Debug"
+      },
+      "command": "cmake -DCMAKE_BUILD_TYPE=Debug ../../source"
+    },
+    {
+      "label": "build",
+      "type": "shell",
+      "dependsOn": "configure",
+      "options": {
+        "cwd": "build/Debug"
+      },
+      "command": "cmake --build . --config Debug -- -j",
+      "problemMatcher": [
+        "$gcc"
+      ]
+    }
+  ]
+}

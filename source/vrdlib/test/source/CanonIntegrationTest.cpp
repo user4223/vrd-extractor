@@ -33,13 +33,15 @@ struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
    CanonIntegrationTest() : CSampleAwareTestBase() {}
    virtual void SetUp() override {}
    virtual void TearDown() override {}
-   unsigned int foreach(std::string fileRegex, VRD::API::IInterpreter& interpreter, std::function<void(unsigned int index, VRD::API::IPropertySource const&)> function)
+   unsigned int foreach (std::string fileRegex, VRD::API::IInterpreter & interpreter, std::function<void(unsigned int index, VRD::API::IPropertySource const &)> function)
    {
       auto const files(VRD::Utility::getNonEmptyMatches(getSampleDirectory(), std::regex(fileRegex)));
       if (files.empty())
-      {  return 0; }
+      {
+         return 0;
+      }
       unsigned int index(0);
-      for (auto const& file : files)
+      for (auto const &file : files)
       {
          VRD::CContext context(std::make_unique<VRD::Utility::CStreamReader>(file.string()));
          interpreter.interpret(context);
@@ -49,7 +51,11 @@ struct CanonIntegrationTest : public VRD::Test::CSampleAwareTestBase
    }
 };
 
-TEST_F(CanonIntegrationTest, CR2_DPP3_CheckMark_Rating_Conflict)
+/** TODO Disabled integration tests since source of image data in not clear right now.
+ *       To include them for execution add '--gtest_also_run_disabled_tests' 
+ *       on execution or set env GTEST_ALSO_RUN_DISABLED_TESTS to 1.
+*/
+TEST_F(CanonIntegrationTest, DISABLED_CR2_DPP3_CheckMark_Rating_Conflict)
 {
    auto const image(getSampleDirectory() / "CR2" / "DPP_V3" / "V3_CM2_Rating2.CR2");
    auto context(std::make_unique<VRD::CContext>(std::make_unique<VRD::Utility::CStreamReader>(image)));
@@ -63,11 +69,10 @@ TEST_F(CanonIntegrationTest, CR2_DPP3_CheckMark_Rating_Conflict)
    EXPECT_THROW(adapter.getProperty(to_string(VRD::API::PropertyType::Rating)), std::domain_error);
 }
 
-TEST_F(CanonIntegrationTest, CR2_DPP_V3_CheckMark)
+TEST_F(CanonIntegrationTest, DISABLED_CR2_DPP_V3_CheckMark)
 {
    VRD::Canon::CCR2 interpreter;
-   auto const count(foreach(".*[/\\]DPP[_]V3[/\\]V3[_]CM\\d[.]CR2$", interpreter, [this](auto index, auto const& query)
-   {
+   auto const count(foreach (".*[/\\]DPP[_]V3[/\\]V3[_]CM\\d[.]CR2$", interpreter, [this](auto index, auto const &query) {
       auto const cm(index + 1);
       {
          auto const property(query.getProperty(to_string(VRD::Canon::PropertyType::VRD1_CheckMark)));
@@ -83,11 +88,10 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V3_CheckMark)
    EXPECT_EQ(count, 5u);
 }
 
-TEST_F(CanonIntegrationTest, CRW_DPP_V3_CheckMark)
+TEST_F(CanonIntegrationTest, DISABLED_CRW_DPP_V3_CheckMark)
 {
    VRD::Canon::CCRW interpreter;
-   auto const count(foreach(".*[/\\]DPP[_]V3[/\\]V3[_]CM\\d[.]CRW$", interpreter, [this](auto index, auto const& query)
-   {
+   auto const count(foreach (".*[/\\]DPP[_]V3[/\\]V3[_]CM\\d[.]CRW$", interpreter, [this](auto index, auto const &query) {
       auto const cm(index + 1);
       {
          auto const property(query.getProperty(to_string(VRD::Canon::PropertyType::VRD1_CheckMark)));
@@ -103,11 +107,10 @@ TEST_F(CanonIntegrationTest, CRW_DPP_V3_CheckMark)
    EXPECT_EQ(count, 5u);
 }
 
-TEST_F(CanonIntegrationTest, CR2_DPP_V4_CheckMark)
+TEST_F(CanonIntegrationTest, DISABLED_CR2_DPP_V4_CheckMark)
 {
    VRD::Canon::CCR2 interpreter;
-   auto const count(foreach(".*[/\\]DPP[_]V4[/\\]V4[_]CM\\d[.]CR2$", interpreter, [this](auto index, auto const& query)
-   {
+   auto const count(foreach (".*[/\\]DPP[_]V4[/\\]V4[_]CM\\d[.]CR2$", interpreter, [this](auto index, auto const &query) {
       auto const cm(index + 1);
       {
          auto const property(query.getProperty(to_string(VRD::Canon::PropertyType::DR4_CheckMark)));
@@ -118,12 +121,11 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V4_CheckMark)
    EXPECT_EQ(count, 5u);
 }
 
-TEST_F(CanonIntegrationTest, CR2_DPP_V3_Rating)
+TEST_F(CanonIntegrationTest, DISABLED_CR2_DPP_V3_Rating)
 {
    VRD::Canon::CCR2 interpreter;
-   auto const count(foreach(".*[/\\]DPP[_]V3[/\\]V3[_]Rating.+?[.]CR2$", interpreter, [this](auto index, auto const& query)
-   {
-      auto const r(static_cast<int>(index)+1);
+   auto const count(foreach (".*[/\\]DPP[_]V3[/\\]V3[_]Rating.+?[.]CR2$", interpreter, [this](auto index, auto const &query) {
+      auto const r(static_cast<int>(index) + 1);
       {
          auto const property(query.getProperty(to_string(VRD::Canon::PropertyType::XMP_Rating)));
          EXPECT_TRUE(property);
@@ -133,7 +135,7 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V3_Rating)
    EXPECT_EQ(count, 6u);
 }
 
-/*TEST_F(CanonIntegrationTest, CRW_DPP_V3_Rating)
+/*TEST_F(CanonIntegrationTest, DISABLED_CRW_DPP_V3_Rating)
 {
    VRD::Canon::CCRW interpreter;
    auto const count(foreach(".*[/\\]DPP[_]V3[/\\]V3[_]Rating.+?[.]CRW$", interpreter, [this](auto index, auto const& query)
@@ -148,12 +150,11 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V3_Rating)
    EXPECT_EQ(count, 6u);
 }*/
 
-TEST_F(CanonIntegrationTest, CR2_DPP_V4_Rating)
+TEST_F(CanonIntegrationTest, DISABLED_CR2_DPP_V4_Rating)
 {
    VRD::Canon::CCR2 interpreter;
-   auto const count(foreach(".*[/\\]DPP[_]V4[/\\]V4[_]Rating.+?[.]CR2$", interpreter, [this](auto index, auto const& query)
-   {
-      auto const r(static_cast<int>(index)+1);
+   auto const count(foreach (".*[/\\]DPP[_]V4[/\\]V4[_]Rating.+?[.]CR2$", interpreter, [this](auto index, auto const &query) {
+      auto const r(static_cast<int>(index) + 1);
       {
          auto const property(query.getProperty(to_string(VRD::Canon::PropertyType::XMP_Rating)));
          EXPECT_TRUE(property);
@@ -163,11 +164,10 @@ TEST_F(CanonIntegrationTest, CR2_DPP_V4_Rating)
    EXPECT_EQ(count, 6u);
 }
 
-TEST_F(CanonIntegrationTest, CR2_Clean)
+TEST_F(CanonIntegrationTest, DISABLED_CR2_Clean)
 {
    VRD::Canon::CCR2 interpreter;
-   auto const count(foreach(".*Clean[.]CR2$", interpreter, [this](auto index, auto const& query)
-   {
+   auto const count(foreach (".*Clean[.]CR2$", interpreter, [this](auto index, auto const &query) {
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::XMP_Rating)));
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::VRD1_CheckMark)));
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::VRD2_CheckMark)));
@@ -176,11 +176,10 @@ TEST_F(CanonIntegrationTest, CR2_Clean)
    EXPECT_EQ(count, 1u);
 }
 
-TEST_F(CanonIntegrationTest, CRW_Clean)
+TEST_F(CanonIntegrationTest, DISABLED_CRW_Clean)
 {
    VRD::Canon::CCRW interpreter;
-   auto const count(foreach(".*Clean[.]CRW$", interpreter, [this](auto index, auto const& query)
-   {
+   auto const count(foreach (".*Clean[.]CRW$", interpreter, [this](auto index, auto const &query) {
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::XMP_Rating)));
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::VRD1_CheckMark)));
       EXPECT_FALSE(query.getProperty(to_string(VRD::Canon::PropertyType::VRD2_CheckMark)));
@@ -189,11 +188,10 @@ TEST_F(CanonIntegrationTest, CRW_Clean)
    EXPECT_EQ(count, 1u);
 }
 
-TEST_F(CanonIntegrationTest, VRD_CheckMark)
+TEST_F(CanonIntegrationTest, DISABLED_VRD_CheckMark)
 {
    VRD::Canon::CVRD interpreter;
-   auto const count(foreach(".*[/\\]DPP[_]V3[/\\]V3[_]CM\\d[.]vrd$", interpreter, [this](auto index, auto const& query)
-   {
+   auto const count(foreach (".*[/\\]DPP[_]V3[/\\]V3[_]CM\\d[.]vrd$", interpreter, [this](auto index, auto const &query) {
       auto const cm(index + 1);
       {
          auto const property(query.getProperty(to_string(VRD::Canon::PropertyType::VRD1_CheckMark)));
@@ -209,11 +207,10 @@ TEST_F(CanonIntegrationTest, VRD_CheckMark)
    EXPECT_EQ(count, 5u); ///< Compulsory
 }
 
-TEST_F(CanonIntegrationTest, DR4_CheckMark)
+TEST_F(CanonIntegrationTest, DISABLED_DR4_CheckMark)
 {
    VRD::Canon::CDR4 interpreter;
-   auto const count(foreach(".*[/\\]DPP[_]V4[/\\]V4[_]CM\\d[.]dr4$", interpreter, [this](auto index, auto const& query)
-   {
+   auto const count(foreach (".*[/\\]DPP[_]V4[/\\]V4[_]CM\\d[.]dr4$", interpreter, [this](auto index, auto const &query) {
       auto const cm(index + 1);
       {
          auto const property(query.getProperty(to_string(VRD::Canon::PropertyType::DR4_CheckMark)));
