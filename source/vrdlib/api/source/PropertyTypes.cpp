@@ -6,26 +6,29 @@
 
 namespace VRD
 {
-namespace API
-{   
-   std::string to_string(PropertyType const& t)
+   namespace API
    {
-      std::ostringstream os;
-      os << t;
-      return os.str();
-   }
-   
-   std::ostream& operator<<(std::ostream& os, PropertyType const& t)
-   {
-      /** \todo Consider, we are using XMP as a target format
-       *        directly, we could use some internal format and support
-       *        multiple export formats in future.
-       */
-      static auto const s(CProperty::getNameSeparator());
-      switch (t)
+      std::string to_string(PropertyType const &t)
       {
-         case PropertyType::Rating: os << "Xmp" << s << "xmp" << s << "Rating"; break;
+         std::ostringstream os;
+         os << t;
+         return os.str();
       }
-      return os;
+
+      std::ostream &operator<<(std::ostream &os, PropertyType const &t)
+      {
+         /** \todo Consider, we are using XMP as a target format
+          *        directly, we could use some internal format and support
+          *        multiple export formats in future.
+          */
+         static auto const s(CProperty::getNameSeparator());
+         switch (t)
+         {
+         case PropertyType::Rating:
+            os << "Xmp" << s << "xmp" << s << "Rating";
+            break;
+         }
+         return os;
+      }
    }
-}}
+}

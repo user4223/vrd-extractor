@@ -50,7 +50,8 @@ namespace VRD
       std::string CPropertyHandler::toString() const
       {
          std::vector<std::string> lines;
-         foreachProperty([&](auto const &p) { lines.emplace_back(to_string(p)); return true; });
+         foreachProperty([&](auto const &p)
+                         { lines.emplace_back(to_string(p)); return true; });
          return boost::join(lines, "\n");
       }
    } // namespace Common

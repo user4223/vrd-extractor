@@ -18,7 +18,7 @@
       // When there are linker errors when using gcc, try switching 
       // explicitly to new abi version by adding this to conan install:
       //    -s compiler.libcxx=libstdc++11
-      "command": "conan install --build missing ../.."
+      "command": "conan install --build missing -pr default ../.."
     },
     {
       "label": "configure",
@@ -27,7 +27,7 @@
       "options": {
         "cwd": "build/Debug"
       },
-      "command": "cmake -DCMAKE_BUILD_TYPE=Debug ../../source"
+      "command": "cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -S ../../source -B ."
     },
     {
       "label": "build",

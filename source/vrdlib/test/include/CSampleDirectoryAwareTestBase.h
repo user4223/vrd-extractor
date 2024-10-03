@@ -1,23 +1,24 @@
 #pragma once
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
+#include <filesystem>
 
 #include <gtest/gtest.h>
 
 namespace VRD
 {
-namespace Test
-{
-   struct CSampleAwareTestBase : virtual public ::testing::Test 
+   namespace Test
    {
-      CSampleAwareTestBase() 
-         :m_sampleDirectoryPath(boost::filesystem::canonical(boost::filesystem::path(__FILE__).parent_path().parent_path() / "etc"))
-      {}
-      
-      boost::filesystem::path getSampleDirectory() const { return m_sampleDirectoryPath; };
-       
-   private:
-      boost::filesystem::path m_sampleDirectoryPath;
-   };
-}}
+      struct CSampleAwareTestBase : virtual public ::testing::Test
+      {
+         CSampleAwareTestBase()
+             : m_sampleDirectoryPath(std::filesystem::canonical(std::filesystem::path(__FILE__).parent_path().parent_path() / "etc"))
+         {
+         }
+
+         std::filesystem::path getSampleDirectory() const { return m_sampleDirectoryPath; };
+
+      private:
+         std::filesystem::path m_sampleDirectoryPath;
+      };
+   }
+}

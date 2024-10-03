@@ -5,8 +5,6 @@ file(GLOB PROJECT_INCLUDES "include/*.h")
 
 add_library(${PROJECT_NAME} STATIC ${PROJECT_SOURCE} ${PROJECT_INCLUDES})
 target_link_libraries(${PROJECT_NAME} 
-	${Log4cxx_LIBRARIES}
-	CONAN_PKG::boost_filesystem
-	CONAN_PKG::boost_algorithm
-)
+    log4cxx 
+    Boost::headers)
 

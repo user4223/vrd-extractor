@@ -5,13 +5,14 @@
 
 namespace VRD
 {
-namespace API
-{
-   enum class PropertyType
+   namespace API
    {
-      Rating
-   };
-   
-   std::string to_string(PropertyType const&);
-   std::ostream& operator<<(std::ostream&, PropertyType const&);
-}}
+      enum class PropertyType
+      {
+         Rating
+      };
+
+      std::string to_string(PropertyType const &);
+      std::ostream &operator<<(std::ostream &, PropertyType const &);
+   }
+}

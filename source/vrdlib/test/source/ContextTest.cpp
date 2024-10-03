@@ -10,7 +10,7 @@
 using VRD::CContext;
 using VRD::CDescriptor;
 
-struct ContextTest : VRD::Test::CReaderAwareTestBase 
+struct ContextTest : VRD::Test::CReaderAwareTestBase
 {
    ContextTest() : CReaderAwareTestBase("ContextTest", std::string()) {}
 };
@@ -31,7 +31,8 @@ TEST_F(ContextTest, ForEachDescriptor)
    context.setDescriptor(CDescriptor("nameA", VRD::Utility::Absolute(23), 2, 5, "descriptionA"));
    context.setDescriptor(CDescriptor("nameB", VRD::Utility::Absolute(5), 1, 23, "descriptionB"));
    std::vector<CDescriptor> results;
-   context.foreachDescriptor([&](CDescriptor const& d) { results.push_back(d); });
+   context.foreachDescriptor([&](CDescriptor const &d)
+                             { results.push_back(d); });
    EXPECT_EQ(results[0].getName(), "nameA");
    EXPECT_EQ(results[0].getPosition(), VRD::Utility::Absolute(23));
    EXPECT_EQ(results[0].getPayloadPosition(), VRD::Utility::Absolute(25));

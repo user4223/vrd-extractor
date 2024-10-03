@@ -2,7 +2,7 @@
 
 #include "vrdlib/api/include/IConflictHandler.h"
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 #include <log4cxx/logger.h>
 
@@ -13,10 +13,10 @@ namespace VRD
 {
    struct CExtractor
    {
-      CExtractor(boost::filesystem::path const& root, std::string whiteListRegex, std::unique_ptr<VRD::API::IConflictHandlerFactory> conflictHandlerFactory, bool dryMode);
-      
+      CExtractor(std::filesystem::path const &root, std::string whiteListRegex, std::unique_ptr<VRD::API::IConflictHandlerFactory> conflictHandlerFactory, bool dryMode);
+
    private:
       log4cxx::LoggerPtr m_logger;
-      boost::filesystem::path m_root;
+      std::filesystem::path m_root;
    };
 }

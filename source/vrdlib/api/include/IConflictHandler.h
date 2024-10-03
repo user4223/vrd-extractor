@@ -4,7 +4,7 @@
 #include <string>
 #include <optional>
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace VRD
 {
@@ -35,7 +35,9 @@ namespace VRD
 
       struct IConflictHandlerFactory
       {
-         virtual std::unique_ptr<IConflictHandler> create(boost::filesystem::path filePath) = 0;
+         virtual ~IConflictHandlerFactory() = default;
+
+         virtual std::unique_ptr<IConflictHandler> create(std::filesystem::path filePath) = 0;
       };
    } // namespace API
 } // namespace VRD

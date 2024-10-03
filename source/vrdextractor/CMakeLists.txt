@@ -10,8 +10,8 @@ target_link_libraries(${PROJECT_NAME}
 	vrdlib.common 
 	vrdlib.canon 
 	vrdlib.utility 
-	${Log4cxx_LIBRARIES}
-	CONAN_PKG::boost_program_options
+	log4cxx
+	Boost::program_options
 )
 
 add_custom_target(${PROJECT_NAME}.Copy ALL

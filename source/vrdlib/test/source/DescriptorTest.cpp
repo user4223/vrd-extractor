@@ -10,7 +10,7 @@ TEST(DescriptorTest, Parameters)
    EXPECT_EQ(VRD::Utility::Absolute(23), descriptor.getPosition());
    EXPECT_EQ(VRD::Utility::Absolute(25), descriptor.getPayloadPosition());
    EXPECT_EQ(VRD::Utility::Absolute(30), descriptor.getEnd());
-   EXPECT_EQ(7u, descriptor.getSize());   
+   EXPECT_EQ(7u, descriptor.getSize());
    EXPECT_EQ(5u, descriptor.getPayloadSize());
    EXPECT_EQ("description of descriptor", descriptor.getDescription());
 }
