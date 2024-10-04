@@ -18,7 +18,7 @@ namespace VRD
          std::sample(std::cbegin(charset),
                      std::cend(charset),
                      std::begin(result),
-                     std::intptr_t(length),
+                     std::intptr_t(length + 1),
                      generator);
          return result;
       }
