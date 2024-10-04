@@ -19,7 +19,7 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev
+          sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev valgrind
 
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 800
           sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-$GCC_VERSION 800
