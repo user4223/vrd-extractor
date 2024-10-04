@@ -6,6 +6,8 @@
 
 #include <iosfwd>
 #include <vector>
+#include <functional>
+#include <memory>
 
 namespace VRD
 {
