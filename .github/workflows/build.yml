@@ -66,11 +66,11 @@ jobs:
         with:
           name: vrdextractor.deb
           path: |
-            build/Release/bin/*.deb
+            build/Release/*.deb
 
       - name: Archive test results
         uses: actions/upload-artifact@v4
         with:
           name: test-and-memory-check-results
           path: |
-            build/Release/bin/*.result.xml
+            *.result.xml
