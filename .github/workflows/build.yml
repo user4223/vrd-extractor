@@ -19,7 +19,7 @@ jobs:
 
       - name: Install compiler and stdlib
         run: |
-          sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev valgrind
+          sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev cmake python3 python3-venv valgrind
 
           sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 800
           sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-$GCC_VERSION 800
@@ -58,8 +58,8 @@ jobs:
             build/Release/bin/vrdlib.test
 
       - name: Create Debian package
-        working-directory: build/Release/bin
-        run: cpack
+        working-directory: build/Release
+        run: cpack --config CPackConfig.cmake
 
       - name: Archive Debian package
         uses: actions/upload-artifact@v4
