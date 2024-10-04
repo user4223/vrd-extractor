@@ -2,6 +2,8 @@
 
 #include "CDescriptor.h"
 
+#include <cstdint>
+
 namespace VRD
 {
     namespace Utility
