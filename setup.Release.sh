@@ -9,6 +9,6 @@ ${WORKSPACE_ROOT}/etc/conan-install.sh Release
 ${WORKSPACE_ROOT}/etc/cmake-config.sh Release
 ${WORKSPACE_ROOT}/etc/cmake-build.sh Release $@
 
-pushd ${WORKSPACE_ROOT}/build/Release/
-    cpack .
+pushd ${WORKSPACE_ROOT}/build/Release
+    cpack --config CPackConfig.cmake
 popd
