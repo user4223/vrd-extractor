@@ -1,16 +1,14 @@
-#!/bin/bash
-DIR="$( cd "$(dirname "$0")" ; pwd -P )"
-BUILD_DIR=$DIR/build/Release
-SOURCE_DIR=$DIR/source
+#!/usr/bin/env bash
 
-mkdir -p $BUILD_DIR
-pushd $BUILD_DIR
-   conan install $DIR
-   cmake \
-      -DCMAKE_BUILD_TYPE=Release \
-      $SOURCE_DIR 
+set -o errexit
 
-   cmake --build .
-   cpack .
+readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"
+
+${WORKSPACE_ROOT}/etc/conan-config.sh
+${WORKSPACE_ROOT}/etc/conan-install.sh Release
+${WORKSPACE_ROOT}/etc/cmake-config.sh Release
+${WORKSPACE_ROOT}/etc/cmake-build.sh Release $@
+
+pushd ${WORKSPACE_ROOT}/build/Release
+    cpack --config CPackConfig.cmake
 popd
-

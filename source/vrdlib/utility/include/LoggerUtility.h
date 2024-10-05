@@ -1,12 +1,13 @@
 #pragma once
 
-#include <boost/filesystem/path.hpp>
+#include <filesystem>
 
 namespace VRD
 {
-namespace Utility
-{ 
-   void initializeLogger(boost::filesystem::path const& configPath, boost::filesystem::path const& logFilePath);
-   
-   void initializeTestLogger(boost::filesystem::path const& executablePath);
-}}
+   namespace Utility
+   {
+      void initializeLogger(std::filesystem::path const &configPath, std::filesystem::path const &logFilePath);
+
+      void initializeTestLogger(std::filesystem::path const &executablePath);
+   }
+}

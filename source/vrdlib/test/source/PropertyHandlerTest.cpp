@@ -5,8 +5,8 @@
 
 #include <gtest/gtest.h>
 
-using VRD::Common::CPropertyHandler;
 using VRD::API::CProperty;
+using VRD::Common::CPropertyHandler;
 
 TEST(PropertyHandlerTest, SetGetProperty)
 {
@@ -19,9 +19,10 @@ TEST(PropertyHandlerTest, ForeachProperty)
 {
    CPropertyHandler handler;
    EXPECT_NO_THROW(handler.setProperty(CProperty("bli", CProperty::ValueType(23), "blubblub")));
-   EXPECT_NO_THROW(handler.setProperty(CProperty("bla", CProperty::ValueType(5), "blub")));   
+   EXPECT_NO_THROW(handler.setProperty(CProperty("bla", CProperty::ValueType(5), "blub")));
    std::vector<CProperty> results;
-   EXPECT_EQ(std::make_pair(2u, 2u), handler.foreachProperty([&](CProperty const& p) { results.push_back(p); return true; }));
+   EXPECT_EQ(std::make_pair(2u, 2u), handler.foreachProperty([&](CProperty const &p)
+                                                             { results.push_back(p); return true; }));
    EXPECT_EQ(results[0].name, "bla");
    EXPECT_EQ(results[0].value, CProperty::ValueType(5));
    EXPECT_EQ(results[0].description, "blub");
@@ -35,8 +36,9 @@ TEST(PropertyHandlerTest, ForeachPropertyUnsuccessful)
 {
    CPropertyHandler handler;
    EXPECT_NO_THROW(handler.setProperty(CProperty("bli", CProperty::ValueType(23), "blubblub")));
-   EXPECT_NO_THROW(handler.setProperty(CProperty("bla", CProperty::ValueType(5), "blub")));   
-   EXPECT_EQ(std::make_pair(2u, 0u), handler.foreachProperty([&](CProperty const& p) { return false; }));
+   EXPECT_NO_THROW(handler.setProperty(CProperty("bla", CProperty::ValueType(5), "blub")));
+   EXPECT_EQ(std::make_pair(2u, 0u), handler.foreachProperty([&](CProperty const &p)
+                                                             { return false; }));
 }
 
 TEST(PropertyHandlerTest, ToString)

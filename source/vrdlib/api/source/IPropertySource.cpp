@@ -5,8 +5,11 @@
 
 namespace VRD
 {
-namespace API
-{
-   std::ostream& operator<<(std::ostream& os, IPropertySource const& s)
-   {  return os << s.toString(); }
-}}
+   namespace API
+   {
+      std::ostream &operator<<(std::ostream &os, IPropertySource const &s)
+      {
+         return os << s.toString();
+      }
+   }
+}

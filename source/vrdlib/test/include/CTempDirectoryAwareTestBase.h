@@ -1,33 +1,41 @@
 #pragma once
 
-#include <boost/filesystem.hpp>
-
 #include <gtest/gtest.h>
+
+#include <filesystem>
 
 namespace VRD
 {
-namespace Test
-{
-   class CTempDirectoryAwareTestBase : virtual public ::testing::Test 
+   namespace Test
    {
-   protected:
-      CTempDirectoryAwareTestBase(std::string pathPostfix) 
-         :m_uniqueDirectoryPath(boost::filesystem::temp_directory_path() / boost::filesystem::unique_path("%%%%_%%%%_%%%%_%%%%." + pathPostfix))
-      {}
+      std::string generateRandomString(std::size_t length);
 
-      virtual void SetUp() override
-      {  boost::filesystem::create_directories(m_uniqueDirectoryPath); }
-      
-      virtual void TearDown() override 
+      class CTempDirectoryAwareTestBase : virtual public ::testing::Test
       {
-         boost::system::error_code ec;
-         boost::filesystem::remove_all(m_uniqueDirectoryPath, ec);
-      }
-      
-      boost::filesystem::path getDirectoryPath() const
-      {  return m_uniqueDirectoryPath; }
-      
-   private:
-      boost::filesystem::path m_uniqueDirectoryPath;
-   };
-}}
+      protected:
+         CTempDirectoryAwareTestBase(std::string pathPostfix)
+             : m_uniqueDirectoryPath(std::filesystem::temp_directory_path() / (generateRandomString(12) + "." + pathPostfix))
+         {
+         }
+
+         virtual void SetUp() override
+         {
+            std::filesystem::create_directories(m_uniqueDirectoryPath);
+         }
+
+         virtual void TearDown() override
+         {
+            std::error_code ec;
+            std::filesystem::remove_all(m_uniqueDirectoryPath, ec);
+         }
+
+         std::filesystem::path getDirectoryPath() const
+         {
+            return m_uniqueDirectoryPath;
+         }
+
+      private:
+         std::filesystem::path m_uniqueDirectoryPath;
+      };
+   }
+}

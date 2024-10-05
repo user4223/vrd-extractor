@@ -6,65 +6,74 @@ on:
   pull_request:
     branches: [master]
 
+env:
+  GCC_VERSION: 13
+
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Prepare tooling
+      - name: Install compiler and stdlib
         run: |
-          sudo apt-get update
-          sudo apt-get -y install gcc cmake make valgrind liblog4cxx-dev libexiv2-dev python3-pip python3-setuptools python3-wheel
-          pip3 install conan
-          export PATH=$PATH:$HOME/.local/bin
-          conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
-          mkdir build
+          sudo apt-get install --no-install-recommends -y gcc-$GCC_VERSION g++-$GCC_VERSION cpp-$GCC_VERSION libstdc++-$GCC_VERSION-dev cmake python3 python3-venv valgrind
 
-      - name: Get dependencies
-        working-directory: build
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          conan install --build=missing ../ -s compiler.libcxx=libstdc++11
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-$GCC_VERSION 800
+          sudo update-alternatives --install /usr/bin/cc  cc  /usr/bin/gcc-$GCC_VERSION 800
 
-      - name: Configure
-        working-directory: build
-        run: cmake -DCMAKE_BUILD_TYPE=Release ../source
+          python3 -m venv .venv && . .venv/bin/activate && pip install "conan<2.0"
 
+      - name: Setup conan
+        run: . .venv/bin/activate && etc/conan-config.sh gcc $GCC_VERSION
+  
+      - name: Cache/Restore dependencies
+        uses: actions/cache@v4
+        with:
+            path: ~/.conan
+            key: ${{ runner.os }}-${{ github.workflow }}-conanfile-${{ hashFiles('conanfile.py') }}
+  
+      - name: Install dependencies
+        run: . .venv/bin/activate && etc/conan-install.sh Release
+  
       - name: Build
-        working-directory: build
-        run: cmake --build . --config Release -- -j
+        run: |
+          etc/cmake-config.sh Release
+          etc/cmake-build.sh Release -- -j
 
       - name: Run gunit tests
-        working-directory: build
-        run: bin/vrdlib.test
+        run: |
+          build/Release/bin/vrdlib.test \
+            --gtest_output=json:gtest.result.json
 
       - name: Run valgrind memory check
-        working-directory: build
         run: |
           valgrind \
             --leak-check=full \
             --show-reachable=yes \
             --track-origins=yes \
             --xml=yes --xml-file=valgrind.result.xml \
-            bin/vrdlib.test
+            build/Release/bin/vrdlib.test
 
       - name: Create Debian package
-        working-directory: build
-        run: cpack
+        working-directory: build/Release
+        run: cpack --config CPackConfig.cmake
 
       - name: Archive Debian package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: vrdextractor.deb
           path: |
-            build/*.deb
+            build/Release/*.deb
 
       - name: Archive test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: test-and-memory-check-results
           path: |
-            build/*.result.xml
+            *.result.xml
+            *.result.json

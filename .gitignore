@@ -2,4 +2,6 @@
 /bin
 /build
 /documentation
+.venv
 *.log*
+CMakeUserPresets.json

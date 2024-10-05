@@ -8,25 +8,23 @@
 
 #include <memory>
 
-struct PropertySourceFactoryTest : public VRD::Test::CSampleAwareTestBase 
+struct PropertySourceFactoryTest : public VRD::Test::CSampleAwareTestBase
 {
    virtual void SetUp() override
-   {  
+   {
       CSampleAwareTestBase::SetUp();
       m_handlerFactory = std::make_unique<VRD::Test::CConflictHandlerMockFactory>([]
-      {
-         return std::make_unique<VRD::Test::CConflictHandlerMock>();
-      });      
+                                                                                  { return std::make_unique<VRD::Test::CConflictHandlerMock>(); });
    }
-   
-   virtual void TearDown() override 
+
+   virtual void TearDown() override
    {
       CSampleAwareTestBase::TearDown();
       m_handlerFactory.reset();
    }
-   
-   VRD::API::IConflictHandlerFactory& getConflictHandlerFactory() { return *m_handlerFactory; }
-   
+
+   VRD::API::IConflictHandlerFactory &getConflictHandlerFactory() { return *m_handlerFactory; }
+
 private:
    std::unique_ptr<VRD::API::IConflictHandlerFactory> m_handlerFactory;
 };

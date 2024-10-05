@@ -8,6 +8,7 @@
 #include <array>
 #include <regex>
 #include <set>
+#include <fstream>
 
 struct FileUtilityTest : VRD::Test::CTempDirectoryAwareTestBase
 {
@@ -19,15 +20,15 @@ struct FileUtilityTest : VRD::Test::CTempDirectoryAwareTestBase
 
       static const std::array<std::string, 4> types = {"CR2", "vrd", "DR4", "BLA"};
       makeFiles(getDirectoryPath(), "", types);
-      boost::filesystem::create_directories(getDirectoryPath() / "A");
+      std::filesystem::create_directories(getDirectoryPath() / "A");
       makeFiles(getDirectoryPath() / "A", "A", types);
-      boost::filesystem::create_directories(getDirectoryPath() / "B" / "C");
+      std::filesystem::create_directories(getDirectoryPath() / "B" / "C");
       makeFiles(getDirectoryPath() / "B" / "C", "C", types);
    }
 
 private:
    template <typename T>
-   void makeFiles(boost::filesystem::path path, std::string _prefix, T types)
+   void makeFiles(std::filesystem::path path, std::string _prefix, T types)
    {
       auto const prefix(_prefix.empty() ? "" : _prefix + "_");
       for (auto const &type : types)
@@ -53,19 +54,19 @@ TEST_F(FileUtilityTest, MatchSingleFile)
 TEST_F(FileUtilityTest, MatchSpecificExtension)
 {
    auto const files(VRD::Utility::getNonEmptyMatches(getDirectoryPath(), std::regex(".*cr2$", std::regex::icase)));
-   auto const relative(boost::filesystem::relative(getDirectoryPath(), boost::filesystem::current_path()));
+   auto const relative(std::filesystem::relative(getDirectoryPath(), std::filesystem::current_path()));
    EXPECT_EQ(files.size(), 3u);
    EXPECT_EQ(files.count(relative / "nonEmpty.CR2"), 1u);
    EXPECT_EQ(files.count(relative / "A" / "A_nonEmpty.CR2"), 1u);
    EXPECT_EQ(files.count(relative / "B" / "C" / "C_nonEmpty.CR2"), 1u);
 
-   EXPECT_TRUE(boost::filesystem::exists(relative / "empty.CR2")); ///< Exists but not in selection because it's empty
+   EXPECT_TRUE(std::filesystem::exists(relative / "empty.CR2")); ///< Exists but not in selection because it's empty
 }
 
 TEST_F(FileUtilityTest, MatchAnotherSpecificExtension)
 {
    auto const files(VRD::Utility::getNonEmptyMatches(getDirectoryPath(), std::regex(".*VRD$", std::regex::icase)));
-   auto const relative(boost::filesystem::relative(getDirectoryPath(), boost::filesystem::current_path()));
+   auto const relative(std::filesystem::relative(getDirectoryPath(), std::filesystem::current_path()));
    EXPECT_EQ(files.size(), 3u);
    EXPECT_EQ(files.count(relative / "nonEmpty.vrd"), 1u);
    EXPECT_EQ(files.count(relative / "A" / "A_nonEmpty.vrd"), 1u);
@@ -75,7 +76,7 @@ TEST_F(FileUtilityTest, MatchAnotherSpecificExtension)
 TEST_F(FileUtilityTest, MatchPathPart)
 {
    auto const files(VRD::Utility::getNonEmptyMatches(getDirectoryPath(), std::regex(".*[\\/]a[\\/].*", std::regex::icase)));
-   auto const relative(boost::filesystem::relative(getDirectoryPath(), boost::filesystem::current_path()));
+   auto const relative(std::filesystem::relative(getDirectoryPath(), std::filesystem::current_path()));
    EXPECT_EQ(files.size(), 4u);
    EXPECT_EQ(files.count(relative / "A" / "A_nonEmpty.CR2"), 1u);
    EXPECT_EQ(files.count(relative / "A" / "A_nonEmpty.DR4"), 1u);

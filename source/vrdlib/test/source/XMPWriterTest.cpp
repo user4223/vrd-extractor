@@ -15,11 +15,11 @@
 using namespace VRD;
 using namespace testing;
 
-struct XMPWriterTest : VRD::Test::CTempDirectoryAwareTestBase 
+struct XMPWriterTest : VRD::Test::CTempDirectoryAwareTestBase
 {
    XMPWriterTest() : CTempDirectoryAwareTestBase("XMPWriterTest") {}
-   
-   Exiv2::Xmpdatum getEntry(boost::filesystem::path file, std::string keyString)
+
+   Exiv2::Xmpdatum getEntry(std::filesystem::path file, std::string keyString)
    {
       auto image(Exiv2::ImageFactory::open((getDirectoryPath() / file).string()));
       image->readMetadata();
@@ -38,7 +38,7 @@ TEST_F(XMPWriterTest, WriteProperty)
    EXPECT_TRUE(writer.hasChanged());
    EXPECT_NO_THROW(writer.write());
    EXPECT_FALSE(writer.hasChanged());
-   EXPECT_EQ(getEntry("WriteProperty.xmp", "Xmp.xmp.Rating").toLong(), 2);
+   EXPECT_EQ(getEntry("WriteProperty.xmp", "Xmp.xmp.Rating").toUint32(), 2);
 }
 
 TEST_F(XMPWriterTest, OverwriteExisting)
@@ -48,15 +48,15 @@ TEST_F(XMPWriterTest, OverwriteExisting)
       EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4))));
       EXPECT_NO_THROW(writer.write());
    }
-   EXPECT_EQ(getEntry("OverwriteExisting.xmp", "Xmp.xmp.Rating").toLong(), 4);
+   EXPECT_EQ(getEntry("OverwriteExisting.xmp", "Xmp.xmp.Rating").toUint32(), 4);
    {
       auto conflictHandler(std::make_unique<VRD::Test::CConflictHandlerMock>());
       EXPECT_CALL(*conflictHandler, handle(_)).WillOnce(Return(1));
       CXMPWriter writer(getDirectoryPath() / "OverwriteExisting.xmp", std::move(conflictHandler), CXMPWriter::Mode::Normal);
       EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3)))); ///< Change value
       EXPECT_NO_THROW(writer.write());
-   }   
-   EXPECT_EQ(getEntry("OverwriteExisting.xmp", "Xmp.xmp.Rating").toLong(), 3);
+   }
+   EXPECT_EQ(getEntry("OverwriteExisting.xmp", "Xmp.xmp.Rating").toUint32(), 3);
 }
 
 TEST_F(XMPWriterTest, DryMode)
@@ -67,7 +67,7 @@ TEST_F(XMPWriterTest, DryMode)
    EXPECT_TRUE(writer.hasChanged());
    EXPECT_NO_THROW(writer.write());
    EXPECT_FALSE(writer.hasChanged());
-   EXPECT_FALSE(boost::filesystem::exists(getDirectoryPath() / "DryMode.xmp"));
+   EXPECT_FALSE(std::filesystem::exists(getDirectoryPath() / "DryMode.xmp"));
 }
 
 TEST_F(XMPWriterTest, NoDataNoWrite)
@@ -75,29 +75,29 @@ TEST_F(XMPWriterTest, NoDataNoWrite)
    CXMPWriter writer(getDirectoryPath() / "NoDataNoWrite.xmp", std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Normal);
    EXPECT_FALSE(writer.hasChanged());
    EXPECT_NO_THROW(writer.write());
-   EXPECT_FALSE(boost::filesystem::exists(getDirectoryPath() / "NoDataNoWrite.xmp"));
+   EXPECT_FALSE(std::filesystem::exists(getDirectoryPath() / "NoDataNoWrite.xmp"));
 }
 
 TEST_F(XMPWriterTest, NoChangeNoWrite)
 {
    auto const path(getDirectoryPath() / "NoChangeNoWrite.xmp");
-   auto const expectedTimePoint(std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() - std::chrono::hours(1)));
-   
+   auto const expectedTimePoint(std::chrono::file_clock::now() - std::chrono::hours(1));
+
    {
       CXMPWriter writer(path, std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Normal);
       EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4))));
       EXPECT_NO_THROW(writer.write());
    }
-   EXPECT_EQ(getEntry("NoChangeNoWrite.xmp", "Xmp.xmp.Rating").toLong(), 4);
-   
-   boost::filesystem::last_write_time(path, expectedTimePoint);         ///< Set file time
-   auto const realTimePoint(boost::filesystem::last_write_time(path));  ///< Re-read real file time
+   EXPECT_EQ(getEntry("NoChangeNoWrite.xmp", "Xmp.xmp.Rating").toUint32(), 4);
+
+   std::filesystem::last_write_time(path, expectedTimePoint);        ///< Set file time
+   auto const realTimePoint(std::filesystem::last_write_time(path)); ///< Re-read real file time
    {
       CXMPWriter writer(path, std::make_unique<VRD::Test::CConflictHandlerMock>(), CXMPWriter::Mode::Normal);
       EXPECT_FALSE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(4)))); ///< Same value
       EXPECT_NO_THROW(writer.write());
-   }   
-   EXPECT_EQ(boost::filesystem::last_write_time(path), realTimePoint);  ///< No change
+   }
+   EXPECT_EQ(std::filesystem::last_write_time(path), realTimePoint); ///< No change
 }
 
 TEST_F(XMPWriterTest, ConflictUpdate)
@@ -108,7 +108,7 @@ TEST_F(XMPWriterTest, ConflictUpdate)
    EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(2))));
    EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3))));
    EXPECT_NO_THROW(writer.write());
-   EXPECT_EQ(getEntry("ConflictUpdate.xmp", "Xmp.xmp.Rating").toLong(), 3);
+   EXPECT_EQ(getEntry("ConflictUpdate.xmp", "Xmp.xmp.Rating").toUint32(), 3);
 }
 
 TEST_F(XMPWriterTest, ConflictKeep)
@@ -119,5 +119,5 @@ TEST_F(XMPWriterTest, ConflictKeep)
    EXPECT_TRUE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(1))));
    EXPECT_FALSE(writer.setProperty(API::CProperty(to_string(API::PropertyType::Rating), API::CProperty::ValueType(3))));
    EXPECT_NO_THROW(writer.write());
-   EXPECT_EQ(getEntry("ConflictKeep.xmp", "Xmp.xmp.Rating").toLong(), 1);
+   EXPECT_EQ(getEntry("ConflictKeep.xmp", "Xmp.xmp.Rating").toUint32(), 1);
 }

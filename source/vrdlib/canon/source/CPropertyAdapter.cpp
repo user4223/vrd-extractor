@@ -11,6 +11,7 @@
 #include <set>
 #include <sstream>
 #include <stdexcept>
+#include <format>
 
 namespace VRD
 {
@@ -32,7 +33,7 @@ namespace VRD
                return;
             }
 
-            auto const inValue(boost::get<T>(property->value));
+            auto const inValue(std::get<T>(property->value));
             if (validValues.find(inValue) == validValues.end())
             {
                return;
@@ -53,7 +54,8 @@ namespace VRD
                {
                   std::ostringstream os;
                   std::vector<std::string> propertyStrings(entry.second.size());
-                  std::transform(entry.second.begin(), entry.second.end(), propertyStrings.begin(), [](auto const &p) { return to_string(p); });
+                  std::transform(entry.second.begin(), entry.second.end(), propertyStrings.begin(), [](auto const &p)
+                                 { return to_string(p); });
                   os << API::PropertyType::Rating << ": " << entry.first << " [" << boost::algorithm::join(propertyStrings, "], [") << "]";
                   options.emplace_back(os.str());
                   m_optionValueMap.emplace(std::make_pair(index++, entry.first));
@@ -76,7 +78,8 @@ namespace VRD
             std::map<size_t, int16_t> m_optionValueMap;
          };
 
-         auto const convert([](API::IPropertySource const &query, API::IConflictHandler &conflictHandler) {
+         auto const convert([](API::IPropertySource const &query, API::IConflictHandler &conflictHandler)
+                            {
             std::map<int16_t, std::vector<API::CProperty>> valueMap;
             addValid<uint16_t>(valueMap, query, PropertyType::VRD1_CheckMark, {{1u, 5u}, {2u, 4u}, {3u, 3}});
             addValid<uint16_t>(valueMap, query, PropertyType::VRD2_CheckMark, {{1u, 5u}, {2u, 4u}, {3u, 3}, {4u, 2u}, {5u, 1u}});
@@ -101,15 +104,14 @@ namespace VRD
           */
             Options options(valueMap);
             auto const selectedValue(options.resolveValue(conflictHandler.handle(options.createList()).selection.value()));
-            return CPropertyAdapter::OptionalPropertyType(API::CProperty(to_string(API::PropertyType::Rating), selectedValue));
-         });
+            return CPropertyAdapter::OptionalPropertyType(API::CProperty(to_string(API::PropertyType::Rating), selectedValue)); });
       } // namespace Rating
 
-      auto const propertyMap([] {
+      auto const propertyMap([]
+                             {
          std::map<std::string, std::function<CPropertyAdapter::OptionalPropertyType(API::IPropertySource const &, API::IConflictHandler &)>> m;
          m.emplace(std::make_pair(to_string(API::PropertyType::Rating), Rating::convert));
-         return m;
-      }());
+         return m; }());
 
       CPropertyAdapter::CPropertyAdapter(std::unique_ptr<IPropertySource> source, std::unique_ptr<API::IConflictHandler> conflictHandler)
           : m_source(std::move(source)), m_conflictHandler(std::move(conflictHandler))
@@ -142,7 +144,8 @@ namespace VRD
       std::string CPropertyAdapter::toString() const
       {
          std::vector<std::string> lines;
-         foreachProperty([&](auto const &p) { lines.emplace_back(to_string(p)); return true; });
+         foreachProperty([&](auto const &p)
+                         { lines.emplace_back(to_string(p)); return true; });
          return boost::join(lines, "\n");
       }
    } // namespace Canon

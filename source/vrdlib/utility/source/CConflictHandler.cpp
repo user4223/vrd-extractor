@@ -10,104 +10,116 @@
 
 namespace VRD
 {
-namespace Utility
-{   
-   int AConflictHandlerBase::validate(int inValue, int maxValue) 
+   namespace Utility
    {
-      if (inValue < 0l)
-      {  
-         std::ostringstream os;
-         os << "Inserted value '" << inValue << "' less than 0";
-         throw std::out_of_range(os.str()); 
-      }
-      
-      if (inValue > maxValue)
-      {  
-         std::ostringstream os;
-         os << "Inserted value '" << inValue << "' greater than maximum: " << maxValue;
-         throw std::out_of_range(os.str()); 
-      }
-      return inValue;
-   }
-   
-   CManualConflictHandler::CManualConflictHandler(std::istream& is, std::ostream& os, boost::filesystem::path filePath)
-      :m_is(is)
-      ,m_os(os)
-      ,m_filePath(filePath)
-   {}
-   
-   CManualConflictHandler::Result CManualConflictHandler::handle(std::vector<std::string> const& _options)
-   {
-      if (_options.empty())
-      {  throw std::invalid_argument("Empty option list"); }
-      
-      std::map<std::string, std::string> options;
-      for (unsigned int i(0); i < _options.size(); ++i)
-      {  options.emplace(std::make_pair(std::to_string(i), _options[i])); }
-      options.emplace(std::make_pair("x", "Abort further processing"));
-      
-      while (1)
+      int AConflictHandlerBase::validate(int inValue, int maxValue)
       {
-         if (!m_is.good())
-         {  throw std::domain_error("Input stream failed"); }
-         
-         m_os << "Conflict in file: " << m_filePath.string() << "\n"
-              << "Select one option:\n";
-         for (auto const& option : options) 
-         {  m_os << "   " << option.first << ": " << option.second << '\n'; }
-         
-         std::string input;
-         m_is >> input;
-         boost::algorithm::trim(input);
-         boost::algorithm::to_lower(input);
-         
-         if (input.size() == 0)
+         if (inValue < 0l)
          {
-            m_os << "Input error: Empty string\n";
-            continue;
+            std::ostringstream os;
+            os << "Inserted value '" << inValue << "' less than 0";
+            throw std::out_of_range(os.str());
          }
-         
-         if (input.size() == 1 && input[0] == 'x')
-         {  
-            /** \todo This should be a specific exeption type to enable users to catch exactly this case 
-             */
-            throw std::domain_error("Abort requested by user, terminate processing here"); 
-         }
-         
-         if (!((input[0] >= '0' && input[0] <= '9') || input[0] == '-' || input[0] == '+'))
+
+         if (inValue > maxValue)
          {
-            m_os << "Input error: Expected an integral number or 'x' for abort, got: " << input << "\n";
-            continue;
+            std::ostringstream os;
+            os << "Inserted value '" << inValue << "' greater than maximum: " << maxValue;
+            throw std::out_of_range(os.str());
          }
-         
-         int value(0);
-         try
+         return inValue;
+      }
+
+      CManualConflictHandler::CManualConflictHandler(std::istream &is, std::ostream &os, std::filesystem::path filePath)
+          : m_is(is), m_os(os), m_filePath(filePath)
+      {
+      }
+
+      CManualConflictHandler::Result CManualConflictHandler::handle(std::vector<std::string> const &_options)
+      {
+         if (_options.empty())
          {
-            value = std::stoi(input);
-            value = validate(value, static_cast<int>(_options.size()-1));
+            throw std::invalid_argument("Empty option list");
          }
-         catch (std::invalid_argument const&)
+
+         std::map<std::string, std::string> options;
+         for (unsigned int i(0); i < _options.size(); ++i)
          {
-            m_os << "Input error: Expected an integral number or 'x' for abort, got: " << input << "\n";
-            continue;
+            options.emplace(std::make_pair(std::to_string(i), _options[i]));
          }
-         catch (std::out_of_range const& e)
+         options.emplace(std::make_pair("x", "Abort further processing"));
+
+         while (1)
          {
-            m_os << "Input error: " << e.what() << "\n";
-            continue;
+            if (!m_is.good())
+            {
+               throw std::domain_error("Input stream failed");
+            }
+
+            m_os << "Conflict in file: " << m_filePath.string() << "\n"
+                 << "Select one option:\n";
+            for (auto const &option : options)
+            {
+               m_os << "   " << option.first << ": " << option.second << '\n';
+            }
+
+            std::string input;
+            m_is >> input;
+            boost::algorithm::trim(input);
+            boost::algorithm::to_lower(input);
+
+            if (input.size() == 0)
+            {
+               m_os << "Input error: Empty string\n";
+               continue;
+            }
+
+            if (input.size() == 1 && input[0] == 'x')
+            {
+               /** \todo This should be a specific exeption type to enable users to catch exactly this case
+                */
+               throw std::domain_error("Abort requested by user, terminate processing here");
+            }
+
+            if (!((input[0] >= '0' && input[0] <= '9') || input[0] == '-' || input[0] == '+'))
+            {
+               m_os << "Input error: Expected an integral number or 'x' for abort, got: " << input << "\n";
+               continue;
+            }
+
+            int value(0);
+            try
+            {
+               value = std::stoi(input);
+               value = validate(value, static_cast<int>(_options.size() - 1));
+            }
+            catch (std::invalid_argument const &)
+            {
+               m_os << "Input error: Expected an integral number or 'x' for abort, got: " << input << "\n";
+               continue;
+            }
+            catch (std::out_of_range const &e)
+            {
+               m_os << "Input error: " << e.what() << "\n";
+               continue;
+            }
+
+            return Result(value);
          }
-         
-         return Result(value);
+      }
+
+      CManualConflictHandlerFactory::CManualConflictHandlerFactory(std::istream &is, std::ostream &os) : m_is(is), m_os(os) {}
+
+      std::unique_ptr<API::IConflictHandler> CManualConflictHandlerFactory::create(std::filesystem::path filePath)
+      {
+         return std::make_unique<CManualConflictHandler>(m_is, m_os, filePath);
+      }
+
+      CCustomConflictHandler::CCustomConflictHandler(FunctionType f) : m_f(f) {}
+
+      CCustomConflictHandler::Result CCustomConflictHandler::handle(std::vector<std::string> const &options)
+      {
+         return Result(validate(m_f(options), static_cast<int>(options.size() - 1)));
       }
    }
-   
-   CManualConflictHandlerFactory::CManualConflictHandlerFactory(std::istream& is, std::ostream& os) : m_is(is), m_os(os) {}
-   
-   std::unique_ptr<API::IConflictHandler> CManualConflictHandlerFactory::create(boost::filesystem::path filePath)
-   {  return std::make_unique<CManualConflictHandler>(m_is, m_os, filePath); }
-   
-   CCustomConflictHandler::CCustomConflictHandler(FunctionType f) : m_f(f) {}
-   
-   CCustomConflictHandler::Result CCustomConflictHandler::handle(std::vector<std::string> const& options)
-   {  return Result(validate(m_f(options), static_cast<int>(options.size()-1))); }
-}}
+}
