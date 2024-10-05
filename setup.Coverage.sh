@@ -1,22 +1,23 @@
-#!/bin/bash
-DIR="$( cd "$(dirname "$0")" ; pwd -P )"
-BUILD_DIR=$DIR/build/Coverage
-SOURCE_DIR=$DIR/source
+#!/usr/bin/env bash
 
-rm -rf $BUILD_DIR
-mkdir -p $BUILD_DIR
-pushd $BUILD_DIR
-   conan install $DIR
-   cmake \
-      -DCMAKE_BUILD_TYPE=Coverage \
-      $SOURCE_DIR 
+set -o errexit
 
-   cmake --build .
+readonly WORKSPACE_ROOT="$(readlink -f $(dirname "$0"))"
 
-   $DIR/bin/Coverage/vrdlib.test
+${WORKSPACE_ROOT}/etc/conan-config.sh
+${WORKSPACE_ROOT}/etc/conan-install.sh Debug
+${WORKSPACE_ROOT}/etc/cmake-config.sh Debug ON
+${WORKSPACE_ROOT}/etc/cmake-build.sh Debug -- -Bj
 
-   gcovr -r $DIR \
-         -e ".+(gmock|gtest).*[.](cpp|h)$" \
-         -e ".+(Test|TestBase|Mock|main)[.](cpp|h)$"
+pushd ${WORKSPACE_ROOT}/build/Debug
+
+bin/vrdlib.test
+
+gcovr -r $WORKSPACE_ROOT \
+      -e ".+(gmock|gtest).*[.](cpp|h)$" \
+      -e ".+(Test|TestBase|Mock|main)[.](cpp|h)$" \
+      --html-details coverage.html
+
 popd
 
+open ${WORKSPACE_ROOT}/build/Debug/coverage.html

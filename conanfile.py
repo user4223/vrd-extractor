@@ -8,14 +8,29 @@ class TicketDecoderConan(ConanFile):
    generators = "CMakeToolchain", "CMakeDeps"
    options = {}
    requires = [
+               # https://conan.io/center/recipes/boost
                ("boost/1.86.0"),
+               # https://conan.io/center/recipes/gtest
                ("gtest/1.15.0"),
+               # https://conan.io/center/recipes/exiv2
                ("exiv2/0.28.2"),
+               # https://conan.io/center/recipes/log4cxx
                ("log4cxx/1.2.0")
                ]
    default_options = {
                 # global
                 "*:shared": False,
+                # exiv2
+                "exiv2:with_png": False,
+                "exiv2:with_curl": False,
+                # log4cxx
+                "log4cxx:with_qt": False,
+                "log4cxx:with_wchar_t": False,
+                "log4cxx:with_fmt_layout": False,
+                "log4cxx:with_networking": False,
+                "log4cxx:with_odbc_appender": False,
+                "log4cxx:with_smtp_appender": False,
+                "log4cxx:with_multiprocess_rolling_file_appender": False,
                 # boost
                 "boost:pch": False,
                 "boost:header_only": False,

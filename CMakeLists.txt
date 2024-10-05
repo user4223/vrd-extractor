@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 project(vrd)
 
+option(ENABLE_COVERAGE "Configure targets to run coverage analysis" OFF)
+
 set(CONAN_DISABLE_CHECK_COMPILER ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) # compile_commands.json to make auto-complete working in vscode
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
@@ -12,10 +14,9 @@ IF(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 ENDIF()
 
-IF(CMAKE_BUILD_TYPE STREQUAL "Coverage")
-  set(CMAKE_BUILD_TYPE "Debug")
-  add_compile_options(--coverage -fprofile-arcs -ftest-coverage)
-  link_libraries(gcov)
+IF(ENABLE_COVERAGE)
+  add_definitions(-fprofile-arcs -ftest-coverage)
+  link_libraries(--coverage)
   message(STATUS "Configure build for coverage analysis")
 ENDIF()
 
