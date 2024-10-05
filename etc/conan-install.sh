@@ -7,7 +7,7 @@ readonly BUILD_TYPE=${1:-Release}
 
 conan install ${WORKSPACE_ROOT} \
     -if ${WORKSPACE_ROOT}/build/${BUILD_TYPE} \
-    -pr ticket-decoder -pr:b ticket-decoder \
+    -pr vrd-extractor -pr:b vrd-extractor \
     -s build_type=${BUILD_TYPE} \
     --build missing \
     ${@:2}
