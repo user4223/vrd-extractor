@@ -1,4 +1,4 @@
-![build](https://github.com/karlheinzkurt/vrd-extractor/workflows/build/badge.svg)
+[![build](https://github.com/user4223/vrd-extractor/actions/workflows/build.yml/badge.svg)](https://github.com/user4223/vrd-extractor/actions/workflows/build.yml)
 
 # Summary
 Tool to extract VRD recipe data out of CR2/CRW/VRD/DR4 files created while 
@@ -13,6 +13,11 @@ by Darktable. Currently supported tags:
 
 When conflicts between different sources or destination occur, 
 the user is able to solve it manually.
+
+# Idea
+Visualize rating information in filename to make make this tool useful to migrate
+to arbitrary other image processing software and to preserve at least the selection
+of best images for this.
 
 # Motivation
 First of all: Actually I like the results when using DPP to process my images and I
@@ -37,10 +42,8 @@ knowledge about the structure of recipe data is taken from there. Thank you Phil
 
 # Requirements
 
-* C++14 enabled compiler
+* C++20 enabled compiler
 * cmake (> 3.1.2)  
-* log4cxx  (>= 0.10.0, there is no conan package)
-* libexiv2 (>= 0.25.2, no conan package)
 * python3 as requirement for conan
 * conan package manager (See: https://docs.conan.io/en/latest/installation.html)
 
@@ -48,38 +51,28 @@ knowledge about the structure of recipe data is taken from there. Thank you Phil
 
 # Build Instructions
 ```
-mkdir build
-pushd build
-
-# Install dependencies
+# Install compiler and tools around (build essentials)
 #
-conan install --build missing ../
+sudo apt install --no-install-recommends -y build-essential cmake python3 python3-venv
 
-# Build lib, executable and tests
+# Install conan package manager in python venv
 #
-cmake -DCMAKE_BUILD_TYPE=Release ../source
-cmake --build .
+python3 -m venv .venv && source .venv/bin/activate
+pip install "conan<2.0"
+
+# Install dependencies, configure and run build
+#
+./setup.Release.sh
 
 # Run tests
 #
-bin/vrdlib.test
-
-popd
+bin/Release/bin/vrdlib.test
 ```
 
 # Installation instructions for Debian like systems
 ```
-pushd build
-
-# Create package and check content
-#
-cpack
-dpkg --contents vrdextractor*.deb
-
 # Install package
 #
-sudo dpkg -i vrdextractor*.deb
-
-popd
+sudo dpkg -i bin/Release/vrdextractor.deb
 ```
 
