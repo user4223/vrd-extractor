@@ -46,7 +46,9 @@ jobs:
           etc/cmake-build.sh Release -- -j
 
       - name: Run gunit tests
-        run: build/Release/bin/vrdlib.test
+        run: |
+          build/Release/bin/vrdlib.test \
+            --gtest_output=json:gtest.result.json
 
       - name: Run valgrind memory check
         run: |
@@ -74,3 +76,4 @@ jobs:
           name: test-and-memory-check-results
           path: |
             *.result.xml
+            *.result.json
