@@ -4,42 +4,33 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "prepare",
+      "label": "build debug",
       "type": "shell",
-      "command": "mkdir -p build/Debug"
-    },
-    {
-      "label": "dependencies",
-      "type": "shell",
-      "dependsOn": "prepare",
-      "options": {
-        "cwd": "build/Debug"
-      },
-      // When there are linker errors when using gcc, try switching 
-      // explicitly to new abi version by adding this to conan install:
-      //    -s compiler.libcxx=libstdc++11
-      "command": "conan install --build missing -pr default ../.."
-    },
-    {
-      "label": "configure",
-      "type": "shell",
-      "dependsOn": "dependencies",
-      "options": {
-        "cwd": "build/Debug"
-      },
-      "command": "cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_TOOLCHAIN_FILE=generators/conan_toolchain.cmake -S ../../source -B ."
-    },
-    {
-      "label": "build",
-      "type": "shell",
-      "dependsOn": "configure",
-      "options": {
-        "cwd": "build/Debug"
-      },
-      "command": "cmake --build . --config Debug -- -j",
+      "args": [
+        "Debug"
+      ],
+      "command": "${workspaceFolder}/etc/cmake-build.sh",
       "problemMatcher": [
         "$gcc"
-      ]
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "build release",
+      "type": "shell",
+      "args": [
+        "Release"
+      ],
+      "command": "${workspaceFolder}/etc/cmake-build.sh",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build"
+      }
     }
   ]
 }
